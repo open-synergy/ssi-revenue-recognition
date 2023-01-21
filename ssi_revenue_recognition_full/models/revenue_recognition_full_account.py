@@ -50,15 +50,46 @@ class RevenueRecognitionFullAccount(models.Model):
         currency_field="company_currency_id",
         default=0.0,
     )
+    debit_move_line_id = fields.Many2one(
+        string="Debit Move Line",
+        comodel_name="account.move.line",
+        readonly=True,
+    )
+    credit_move_line_id = fields.Many2one(
+        string="Credit Move Line",
+        comodel_name="account.move.line",
+        readonly=True,
+    )
 
     def _create_move_line(self, move):
         MoveLine = self.env["account.move.line"]
-        MoveLine.with_context(check_move_validity=False).create(
+        debit_ml = MoveLine.with_context(check_move_validity=False).create(
             self._prepare_debit_move_line(move)
         )
-        MoveLine.with_context(check_move_validity=False).create(
+        credit_ml = MoveLine.with_context(check_move_validity=False).create(
             self._prepare_credit_move_line(move)
         )
+        self.write(
+            {
+                "debit_move_line_id": debit_ml.id,
+                "credit_move_line_id": credit_ml.id,
+            }
+        )
+
+    def _reconcile_move_line(self):
+        if self.direction == "revenue":
+            lines = self.debit_move_line_id
+        else:
+            lines = self.credit_move_line_id
+
+        MoveLines = self.env["account.move.line"]
+        criteria = [
+            ("id", "in", self.recognition_id.move_line_ids.ids),
+            ("account_id", "=", self.accrue_account_id.id),
+        ]
+        origin_lines = MoveLines.search(criteria)
+        lines = lines + origin_lines
+        lines.reconcile()
 
     def _prepare_credit_move_line(self, move):
         self.ensure_one()

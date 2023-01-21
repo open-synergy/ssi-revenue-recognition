@@ -198,6 +198,8 @@ class RevenueRecognitionFull(models.Model):
         return [
             ("analytic_account_id", "=", self.analytic_account_id.id),
             ("account_id", "in", accounts.ids),
+            ("move_id.state", "=", "posted"),
+            ("reconciled", "=", False),
         ]
 
     def _compute_balance(self):
@@ -227,14 +229,16 @@ class RevenueRecognitionFull(models.Model):
         move = Move.with_context(check_move_validity=False).create(
             self._prepare_account_move()
         )
-        for summary in self.account_ids:
-            summary._create_move_line(move)
+        for account in self.account_ids:
+            account._create_move_line(move)
         self.write(
             {
                 "move_id": move.id,
             }
         )
         move.action_post()
+        for account in self.account_ids:
+            account._reconcile_move_line()
 
     def _prepare_account_move(self):
         return {

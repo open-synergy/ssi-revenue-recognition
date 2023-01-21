@@ -84,6 +84,21 @@
                             <field name="debit" />
                             <field name="credit" />
                         </tree>
+                        <form>
+                            <group name="mapping_1" colspan="4" col="2">
+                                <group name="mapping_1_1" colspan="1" col="2">
+                                    <field name="accrue_account_id" />
+                                    <field name="account_id" />
+                                    <field name="direction" />
+                                    <field name="debit" />
+                                    <field name="credit" />
+                                </group>
+                                <group name="mapping_1_2" colspan="1" col="2">
+                                    <field name="debit_move_line_id" />
+                                    <field name="credit_move_line_id" />
+                                </group>
+                            </group>
+                        </form>
                     </field>
                 </page>
                 <page name="accounting" string="Accounting">
