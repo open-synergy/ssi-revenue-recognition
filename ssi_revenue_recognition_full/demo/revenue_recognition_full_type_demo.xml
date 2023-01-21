@@ -16,6 +16,7 @@
     <field name="type_id" ref="revenue_recognition_full_type_demo1" />
     <field name="accrue_account_id" ref="ssi_revenue_recognition.demo_account1" />
     <field name="account_id" ref="ssi_revenue_recognition.demo_account3" />
+    <field name="direction">cost</field>
 </record>
 
 <record
@@ -25,6 +26,7 @@
     <field name="type_id" ref="revenue_recognition_full_type_demo1" />
     <field name="accrue_account_id" ref="ssi_revenue_recognition.demo_account2" />
     <field name="account_id" ref="ssi_revenue_recognition.demo_account4" />
+    <field name="direction">cost</field>
 </record>
 
 <record
@@ -34,6 +36,7 @@
     <field name="type_id" ref="revenue_recognition_full_type_demo1" />
     <field name="accrue_account_id" ref="ssi_revenue_recognition.demo_account5" />
     <field name="account_id" ref="ssi_revenue_recognition.demo_account6" />
+    <field name="direction">revenue</field>
 </record>
 
 </odoo>
