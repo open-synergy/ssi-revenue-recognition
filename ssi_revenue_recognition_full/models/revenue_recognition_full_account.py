@@ -77,6 +77,7 @@ class RevenueRecognitionFullAccount(models.Model):
         )
 
     def _reconcile_move_line(self):
+        self.ensure_one()
         if self.direction == "revenue":
             lines = self.debit_move_line_id
         else:
@@ -90,6 +91,14 @@ class RevenueRecognitionFullAccount(models.Model):
         origin_lines = MoveLines.search(criteria)
         lines = lines + origin_lines
         lines.reconcile()
+
+    def _unreconcile_move_line(self):
+        if self.direction == "revenue":
+            lines = self.debit_move_line_id
+        else:
+            lines = self.credit_move_line_id
+
+        lines.remove_move_reconcile()
 
     def _prepare_credit_move_line(self, move):
         self.ensure_one()

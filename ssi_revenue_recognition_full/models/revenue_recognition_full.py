@@ -162,6 +162,13 @@ class RevenueRecognitionFull(models.Model):
         if self.type_id:
             self.journal_id = self.type_id.journal_id.id
 
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_policy_template_id(self):
+        template_id = self._get_template_policy()
+        self.policy_template_id = template_id
+
     @api.onchange("type_id")
     def onchange_account_ids(self):
         self.update({"account_ids": [(5, 0, 0)]})
@@ -248,11 +255,14 @@ class RevenueRecognitionFull(models.Model):
         }
 
     @ssi_decorator.post_cancel_action()
-    def _cancel_move(self):
+    def _20_cancel_move(self):
         self.ensure_one()
 
         if not self.move_id:
             return True
+
+        for account in self.account_ids:
+            account._unreconcile_move_line()
 
         move = self.move_id
         self.write(
