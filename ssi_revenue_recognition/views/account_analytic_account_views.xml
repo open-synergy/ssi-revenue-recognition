@@ -12,6 +12,7 @@
         <data>
             <xpath expr="//field[@name='group_id']" position="after">
                 <field name="revenue_recognition_type" />
+                <field name="progress_completion_method" />
             </xpath>
         </data>
     </field>

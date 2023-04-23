@@ -17,3 +17,12 @@ class AccountAnalyticAccount(models.Model):
             ("periodic", "Periodic"),
         ],
     )
+    progress_completion_method = fields.Selection(
+        string="Progress Completion Method",
+        selection=[
+            ("input", "Input"),
+            ("output", "Output"),
+        ],
+        required=True,
+        default="input",
+    )
