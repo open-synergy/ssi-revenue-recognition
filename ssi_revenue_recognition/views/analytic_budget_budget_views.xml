@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2022 OpenSynergy Indonesia
+     Copyright 2022 PT. Simetri Sinergi Indonesia
+     License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+<record id="analytic_budget_budget_view_form" model="ir.ui.view">
+    <field name="name">analytic_budget.budget - form</field>
+    <field name="model">analytic_budget.budget</field>
+    <field
+            name="inherit_id"
+            ref="ssi_analytic_budget.analytic_budget_budget_view_form"
+        />
+    <field name="arch" type="xml">
+        <data>
+            <xpath
+                    expr="//field[@name='detail_revenue_ids']/form//notebook"
+                    position="inside"
+                >
+                <page name="revenue_fulfillment" string="Revenue Fulfillment">
+                    <group name="revenue_fulfillment_1" colspan="4" col="2">
+                        <group name="revenue_fulfillment_1_1" colspan="1" col="2">
+                            <field name="fullfilment_method" />
+                        </group>
+                        <group name="revenue_fulfillment_1_1" colspan="1" col="2">
+                            <field name="amount_to_fulfill" />
+                            <field name="amount_fulfilled" />
+                            <field name="percentage_fulfilled" />
+                            <field name="amount_residual" />
+                        </group>
+                    </group>
+                </page>
+                <page
+                        name="manual_revenue_fulfillment"
+                        string="Manual Revenue Fulfillment"
+                    >
+                    <group name="manual_revenue_fulfillment_1" colspan="4" col="2">
+                        <group
+                                name="manual_revenue_fulfillment_1_1"
+                                colspan="1"
+                                col="2"
+                            >
+                            <field name="amount_manual_fulfillment" />
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </data>
+    </field>
+</record>
+</odoo>
