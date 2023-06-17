@@ -5,6 +5,8 @@
 
 from odoo import api, fields, models
 
+from odoo.addons.ssi_decorator import ssi_decorator
+
 
 class ServiceContract(models.Model):
     _name = "service.contract"
@@ -19,6 +21,37 @@ class ServiceContract(models.Model):
         default=False,
         readonly=True,
     )
+    performance_obligation_ids = fields.One2many(
+        string="Performance Obligations",
+        comodel_name="service_contract.performance_obligation",
+        inverse_name="contract_id",
+        readonly=True,
+    )
+    amount_total_pob = fields.Monetary(
+        string="Total Performance Obligation",
+        currency_field="currency_id",
+        compute="_compute_amount_pob",
+        store=True,
+    )
+    amount_diff_pob = fields.Monetary(
+        string="Performance Obligation Diff",
+        currency_field="currency_id",
+        compute="_compute_amount_pob",
+        store=True,
+    )
+
+    @api.depends(
+        "performance_obligation_ids",
+        "performance_obligation_ids.price_subtotal",
+    )
+    def _compute_amount_pob(self):
+        for record in self:
+            total = diff = 0.0
+            for pob in record.performance_obligation_ids:
+                total += pob.price_subtotal
+            diff = record.amount_total - total
+            record.amount_total_pob = total
+            record.amount_diff_pob = diff
 
     @api.onchange(
         "analytic_account_id",
@@ -33,6 +66,41 @@ class ServiceContract(models.Model):
     def action_unlock_budget(self):
         for record in self.sudo():
             record._unlock_budget()
+
+    @ssi_decorator.post_confirm_action()
+    def _11_confirm_performance_obligation(self):
+        for pob in self.performance_obligation_ids:
+            pob.action_confirm()
+
+    @ssi_decorator.post_approve_action()
+    def _11_approve_performance_obligation(self):
+        for pob in self.performance_obligation_ids:
+            pob.action_approve_approval()
+
+    @ssi_decorator.post_reject_action()
+    def _11_reject_performance_obligation(self):
+        for pob in self.performance_obligation_ids:
+            pob.action_reject_approval()
+
+    # @ssi_decorator.post_open_action()
+    # def _11_approve_performance_obligation(self):
+    #     for pob in self.performance_obligation_ids:
+    #         pob.action_approve_approval()
+
+    @ssi_decorator.post_cancel_action()
+    def _11_cancel_performance_obligation(self):
+        for pob in self.performance_obligation_ids:
+            pob.action_cancel()
+
+    @ssi_decorator.post_restart_action()
+    def _11_done_performance_obligation(self):
+        for pob in self.performance_obligation_ids:
+            pob.action_restart()
+
+    # @ssi_decorator.post_open_action()
+    # def _11_create_pob_analytic_account(self):
+    #     for pob in self.performance_obligation_ids:
+    #         pob._create_analytic_account()
 
     def _lock_budget(self):
         self.ensure_one()

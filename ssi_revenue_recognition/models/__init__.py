@@ -9,8 +9,7 @@ from . import (
     revenue_recognition,
     revenue_recognition_account,
     performance_obligation_acceptance,
-    performance_obligation_acceptance_detail,
     performance_obligation_acceptance_manual_fulfillment,
     service_contract,
-    analytic_budget_detail,
+    service_contract_performance_obligation,
 )
