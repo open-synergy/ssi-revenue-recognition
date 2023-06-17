@@ -28,7 +28,7 @@
                 <field name="contract_id" />
                 <field name="partner_id" />
                 <field name="title" />
-                <field name="analytic_account_id" />
+                <field name="analytic_account_id" optional="hide" />
                 <field name="currency_id" invisible="1" />
                 <field name="price_unit" optional="hide" />
                 <field name="uom_quantity" optional="hide" />
