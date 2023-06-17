@@ -40,6 +40,9 @@
                     <field name="performance_obligation_ids" />
                 </page>
             </xpath>
+            <xpath expr="//field[@name='analytic_group_id']" position="after">
+                <field name="pob_analytic_group_id" />
+            </xpath>
         </data>
     </field>
 </record>

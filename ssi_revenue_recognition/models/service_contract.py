@@ -12,6 +12,10 @@ class ServiceContract(models.Model):
     _name = "service.contract"
     _inherit = ["service.contract"]
 
+    pob_analytic_group_id = fields.Many2one(
+        string="POb Analytic Group",
+        comodel_name="account.analytic.group",
+    )
     analytic_budget_id = fields.Many2one(
         string="# Analytic Budget",
         comodel_name="analytic_budget.budget",
@@ -58,6 +62,14 @@ class ServiceContract(models.Model):
     )
     def onchange_analytic_budget_id(self):
         self.analytic_budget_id = False
+
+    @api.onchange(
+        "type_id",
+    )
+    def onchange_pob_analytic_group_id(self):
+        self.pob_analytic_group_id = False
+        if self.type_id:
+            self.pob_analytic_group_id = self.type_id.pob_analytic_group_id
 
     def action_lock_budget(self):
         for record in self.sudo():
