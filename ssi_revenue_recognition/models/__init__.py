@@ -12,4 +12,5 @@ from . import (
     performance_obligation_acceptance_manual_fulfillment,
     service_contract,
     service_contract_performance_obligation,
+    service_type,
 )

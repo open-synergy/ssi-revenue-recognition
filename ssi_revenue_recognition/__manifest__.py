@@ -4,7 +4,7 @@
 
 {
     "name": "Revenue Recognition",
-    "version": "14.0.3.0.0",
+    "version": "14.0.3.1.0",
     "website": "https://simetri-sinergi.id",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "license": "LGPL-3",
@@ -36,6 +36,7 @@
         "views/performance_obligation_acceptance_views.xml",
         "views/service_contract_performance_obligation_views.xml",
         "views/revenue_recognition_views.xml",
+        "views/service_type_views.xml",
     ],
     "demo": [
         "demo/account_account_demo.xml",

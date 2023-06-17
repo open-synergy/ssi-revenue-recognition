@@ -63,6 +63,17 @@
                         attrs="{'invisible':[('revenue_recognition_timing','=','point_in_time')]}"
                     />
                 <field name="fulfillment_field_id" />
+                <field name="require_date" invisible="1" />
+                <field name="readonly_date" invisible="1" />
+                <field name="invisible_date" invisible="1" />
+                <field
+                        name="date_start"
+                        attrs="{'invisible': [('invisible_date','=',True)], 'required': [('require_date','=',True)], 'readonly': [('readonly_date','=',True)]}"
+                    />
+                <field
+                        name="date_end"
+                        attrs="{'invisible': [('invisible_date','=',True)], 'required': [('require_date','=',True)], 'readonly': [('readonly_date','=',True)]}"
+                    />
             </xpath>
             <xpath expr="//group[@name='header_center']" position="inside">
                 <field name="title" />

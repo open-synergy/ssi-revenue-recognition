@@ -175,6 +175,27 @@ class ServiceContractPerformanceObligation(models.Model):
             ],
         },
     )
+    date_start = fields.Date(
+        string="Date Start",
+    )
+    date_end = fields.Date(
+        string="Date Start",
+    )
+    require_date = fields.Boolean(
+        string="Require Date",
+        compute="_compute_date_attribute",
+        store=False,
+    )
+    readonly_date = fields.Boolean(
+        string="Readonly Date",
+        compute="_compute_date_attribute",
+        store=False,
+    )
+    invisible_date = fields.Boolean(
+        string="Invisible Date",
+        compute="_compute_date_attribute",
+        store=False,
+    )
     fulfillment_field_id = fields.Many2one(
         string="Fulfillment Field",
         comodel_name="ir.model.fields",
@@ -251,6 +272,24 @@ class ServiceContractPerformanceObligation(models.Model):
         return res
 
     @api.depends(
+        "revenue_recognition_timing",
+        "state",
+    )
+    def _compute_date_attribute(self):
+        for record in self:
+            required = invisible = readonly = False
+            if record.revenue_recognition_timing == "point_in_time":
+                required = True
+            else:
+                invisible = True
+
+            if record.state != "draft":
+                readonly = True
+            record.require_date = required
+            record.readonly_date = readonly
+            record.invisible_date = invisible
+
+    @api.depends(
         "quantity",
         "acceptance_ids",
         "acceptance_ids.state",
@@ -276,6 +315,18 @@ class ServiceContractPerformanceObligation(models.Model):
             record.quantity_diff = qty_diff
             record.percentage_accepted = percentage
             record.amount_accepted = amount_accepted
+
+    @api.onchange(
+        "revenue_recognition_timing",
+    )
+    def onchange_date_start(self):
+        self.date_start = False
+
+    @api.onchange(
+        "revenue_recognition_timing",
+    )
+    def onchange_date_end(self):
+        self.date_end = False
 
     @api.onchange("product_id")
     def onchange_name(self):
@@ -308,21 +359,35 @@ class ServiceContractPerformanceObligation(models.Model):
     def _prepare_update_analytic_account(self):
         self.ensure_one()
         contract = self.contract_id
-        group_id = contract.analytic_group_id and contract.analytic_group_id.id or False
+        if contract.pob_analytic_group_id:
+            group_id = contract.pob_analytic_group_id.id
+        elif contract.analytic_group_id:
+            group_id = contract.analytic_group_id.id
+        else:
+            group_id = False
         return {
-            "name": self.name,
-            "code": contract.name,
+            "name": self.title,
+            "code": self.name,
             "partner_id": contract.partner_id.id,
             "group_id": group_id,
+            "date_start": self.date_start,
+            "date_end": self.date_end,
         }
 
     def _prepare_analytic_account(self):
         self.ensure_one()
         contract = self.contract_id
-        group_id = contract.analytic_group_id and contract.analytic_group_id.id or False
+        if contract.pob_analytic_group_id:
+            group_id = contract.pob_analytic_group_id.id
+        elif contract.analytic_group_id:
+            group_id = contract.analytic_group_id.id
+        else:
+            group_id = False
         return {
-            "name": self.name,
-            "code": contract.name,
+            "name": self.title,
+            "code": self.name,
             "partner_id": contract.partner_id.id,
             "group_id": group_id,
+            "date_start": self.date_start,
+            "date_end": self.date_end,
         }

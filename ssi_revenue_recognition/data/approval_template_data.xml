@@ -16,6 +16,10 @@
 <record id="pob_approval_template_detail" model="approval.template_detail">
     <field name="template_id" ref="pob_approval_template" />
     <field name="approver_selection_method">use_group</field>
+    <field
+                name="approver_group_ids"
+                eval="[(6,0,[ref('ssi_service.service_contract_validator_group')])]"
+            />
 </record>
 
 <!-- Performance Obligation Acceptance -->
