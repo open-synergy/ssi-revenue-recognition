@@ -15,20 +15,14 @@ class RevenueRecognitionTypeAccount(models.Model):
         required=True,
         ondelete="cascade",
     )
-    direction = fields.Selection(
-        string="Direction",
-        selection=[("revenue", "Revenue"), ("cost", "Cost")],
-        required=True,
-        default="revenue",
-    )
     wip_account_id = fields.Many2one(
         string="WIP Account",
         comodel_name="account.account",
         required=True,
         ondelete="restrict",
     )
-    account_id = fields.Many2one(
-        string="Account",
+    expense_account_id = fields.Many2one(
+        string="Expense Account",
         comodel_name="account.account",
         required=True,
         ondelete="restrict",

@@ -31,6 +31,15 @@
                         attrs="{'invisible':[('lock_budget','=',False)]}"
                     />
             </xpath>
+            <xpath expr="//page[@name='note']" position="before">
+                <page name="performance_obligation" string="Performance Obligations">
+                    <group name="pob_1" colspan="4" col="2">
+                        <field name="amount_total_pob" string="Total" />
+                        <field name="amount_diff_pob" string="Diff." />
+                    </group>
+                    <field name="performance_obligation_ids" />
+                </page>
+            </xpath>
         </data>
     </field>
 </record>

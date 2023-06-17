@@ -4,7 +4,7 @@
      License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
 <odoo>
 <record id="demo_account1" model="account.account">
-    <field name="name">Deferred Exepense - Professional Service - (test)</field>
+    <field name="name">WIP - Professional Service - (test)</field>
     <field name="code">XRR01</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets" />
     <field name="internal_type">other</field>
@@ -12,7 +12,7 @@
 </record>
 
 <record id="demo_account2" model="account.account">
-    <field name="name">Deferred Exepense - Human Resource - (test)</field>
+    <field name="name">WIP - Human Resource - (test)</field>
     <field name="code">XRR02</field>
     <field name="user_type_id" ref="account.data_account_type_current_assets" />
     <field name="internal_type">other</field>

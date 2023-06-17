@@ -92,9 +92,21 @@ class PerformanceObligationAcceptance(models.Model):
             ],
         },
     )
-    analytic_account_id = fields.Many2one(
-        string="Analytic Account",
-        comodel_name="account.analytic.account",
+    contract_id = fields.Many2one(
+        string="# Contract",
+        comodel_name="service.contract",
+        required=True,
+        readonly=True,
+        ondelete="restrict",
+        states={
+            "draft": [
+                ("readonly", False),
+            ],
+        },
+    )
+    performance_obligation_id = fields.Many2one(
+        string="# Performance Obligation",
+        comodel_name="service_contract.performance_obligation",
         required=True,
         readonly=True,
         ondelete="restrict",
@@ -114,21 +126,25 @@ class PerformanceObligationAcceptance(models.Model):
             ],
         },
     )
-    detail_ids = fields.One2many(
-        string="Details",
-        comodel_name="performance_obligation_acceptance_detail",
+    manual_fulfillment_ids = fields.One2many(
+        string="Manual Fulfillments",
+        comodel_name="performance_obligation_acceptance_manual_fulfillment",
         inverse_name="acceptance_id",
-        readonly=True,
-        states={
-            "draft": [
-                ("readonly", False),
-            ],
-        },
     )
-    amount_fulfilled = fields.Float(
-        string="Amount Fulfilled",
-        compute="_compute_amount_fulfilled",
+    qty_manual_fulfillment = fields.Float(
+        string="Manual Fulfillment Qty",
+        compute="_compute_qty_manual_fulfillment",
         store=True,
+    )
+    qty_fulfilled = fields.Float(
+        string="Qty Fulfilled",
+        compute="_compute_qty_fulfilled",
+        store=True,
+    )
+    revenue_recognition_id = fields.Many2one(
+        string="# Revenue Recognition",
+        comodel_name="revenue_recognition",
+        readonly=True,
     )
     state = fields.Selection(
         string="State",
@@ -145,15 +161,23 @@ class PerformanceObligationAcceptance(models.Model):
     )
 
     @api.depends(
-        "detail_ids",
-        "detail_ids.amount_fulfilled",
+        "manual_fulfillment_ids",
+        "manual_fulfillment_ids.quantity",
     )
-    def _compute_amount_fulfilled(self):
+    def _compute_qty_manual_fulfillment(self):
         for record in self:
             result = 0.0
-            for detail in self.detail_ids:
-                result += detail.amount_fulfilled
-            record.amount_fulfilled = result
+            for manual in record.manual_fulfillment_ids:
+                result += manual.quantity
+            record.qty_manual_fulfillment = result
+            record._compute_qty_fulfilled()
+
+    def _compute_qty_fulfilled(self):
+        for record in self:
+            result = getattr(
+                record, record.performance_obligation_id.fulfillment_field_id.name
+            )
+            record.qty_fulfilled = result
 
     @api.model
     def _get_policy_field(self):
@@ -172,7 +196,7 @@ class PerformanceObligationAcceptance(models.Model):
         return res
 
     @api.onchange(
-        "analytic_account_id",
+        "performance_obligation_id",
     )
     def onchange_policy_template_id(self):
         template_id = self._get_template_policy()
@@ -181,30 +205,11 @@ class PerformanceObligationAcceptance(models.Model):
     @api.onchange(
         "partner_id",
     )
-    def onchange_analytic_account_id(self):
-        self.analytic_account_id = False
+    def onchange_contract_id(self):
+        self.contract_id = False
 
-    def action_reload_detail(self):
-        for record in self.sudo():
-            record._reload_detail()
-
-    def _reload_detail(self):
-        self.ensure_one()
-        BudgetDetail = self.env["analytic_budget.detail"]
-        POBDetail = self.env["performance_obligation_acceptance_detail"]
-        domain = self._prepare_detail_domain()
-        self.detail_ids.unlink()
-        for detail in BudgetDetail.search(domain):
-            POBDetail.create(
-                {
-                    "acceptance_id": self.id,
-                    "budget_detail_id": detail.id,
-                }
-            )
-
-    def _prepare_detail_domain(self):
-        self.ensure_one()
-        return [
-            ("analytic_account_id", "=", self.analytic_account_id.id),
-            ("direction", "=", "revenue"),
-        ]
+    @api.onchange(
+        "contract_id",
+    )
+    def onchange_performance_obligation_id(self):
+        self.performance_obligation_id = False

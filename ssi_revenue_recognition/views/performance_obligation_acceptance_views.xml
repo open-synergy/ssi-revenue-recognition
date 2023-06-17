@@ -27,11 +27,12 @@
             <xpath expr="//field[@name='company_id']" position="after">
                 <field name="partner_id" />
                 <field name="contact_partner_id" />
-                <field name="analytic_account_id" />
+                <field name="contract_id" />
+                <field name="performance_obligation_id" />
                 <field name="date" />
                 <field name="date_start" />
                 <field name="date_end" />
-                <field name="amount_fulfilled" sum="Total Fulfillment" />
+                <field name="qty_fulfilled" sum="Total Qty Fulfillment" />
             </xpath>
         </data>
     </field>
@@ -55,9 +56,10 @@
                         name="contact_partner_id"
                         domain="[('id','in',allowed_contact_ids)]"
                     />
+                <field name="contract_id" domain="[('partner_id','=',partner_id)]" />
                 <field
-                        name="analytic_account_id"
-                        domain="[('partner_id','=',partner_id),('progress_completion_method','=','output')]"
+                        name="performance_obligation_id"
+                        domain="[('contract_id','=',contract_id)]"
                     />
             </xpath>
             <xpath expr="//group[@name='header_right']" position="inside">
@@ -66,104 +68,34 @@
                 <field name="date_end" />
             </xpath>
             <xpath expr="//group[@name='footer_left']" position="inside">
-                <field name="amount_fulfilled" />
+                <field name="qty_fulfilled" />
             </xpath>
             <xpath expr="//page[1]" position="before">
-                <page name="detail" string="Details">
-                    <button
-                            name="action_reload_detail"
-                            string="Detail"
-                            icon="fa-refresh"
-                            class="oe_highlight"
-                            type="object"
-                            attrs="{'invisible':[('state','!=','draft')]}"
-                        />
-                    <field name="detail_ids">
-                        <tree>
-                            <field name="budget_detail_id" invisible="1" />
+                <page name="manual" string="Manual Fulfillments">
+                    <field name="manual_fulfillment_ids">
+                        <tree editable="top">
+                            <field name="product_id" />
                             <field name="name" />
-                            <field name="fullfilment_method" />
-                            <field name="currency_id" invisible="1" />
-                            <field name="amount_fulfilled" />
+                            <field name="uom_quantity" />
+                            <field name="uom_id" />
                         </tree>
                         <form>
-                            <group name="detail_1" colspan="4" col="2">
-                                <group name="detail_1_1" colspan="1" col="2">
-                                    <field name="name" />
-                                    <field name="fullfilment_method" />
+                            <group name="manual_form_1" colspan="4" col="2">
+                                <group name="manual_form_1_1" colspan="1" col="2">
+                                    <field name="product_id" invisible="1" />
+                                    <field name="name" invisible="1" />
                                 </group>
-                                <group name="detail_1_2" colspan="1" col="2">
-                                    <field name="currency_id" invisible="1" />
-                                </group>
-                            </group>
-                            <notebook>
-                                <page name="manual" string="Manual Fulfillments">
-                                    <field name="manual_fulfillment_ids">
-                                        <tree>
-                                            <field name="name" />
-                                            <field name="currency_id" invisible="0" />
-                                            <field name="product_id" />
-                                            <field name="price_unit" />
-                                            <field name="uom_quantity" />
-                                            <field name="uom_id" />
-                                            <field name="price_subtotal" />
-                                        </tree>
-                                        <form>
-                                            <group
-                                                    name="manual_form"
-                                                    colspan="4"
-                                                    col="2"
-                                                >
-                                                <group
-                                                        name="manual_form_1"
-                                                        colspan="1"
-                                                        col="2"
-                                                    >
-                                                    <field name="product_id" />
-                                                    <field name="name" />
-                                                </group>
-                                                <group
-                                                        name="manual_form_2"
-                                                        colspan="1"
-                                                        col="2"
-                                                    >
-                                                    <field
-                                                            name="currency_id"
-                                                            invisible="0"
-                                                        />
-                                                    <field name="uom_quantity" />
-                                                    <field
-                                                            name="allowed_uom_ids"
-                                                            widget="many2many_tags"
-                                                            invisible="1"
-                                                        />
-                                                    <field
-                                                            name="uom_id"
-                                                            domain="[('id','in',allowed_uom_ids)]"
-                                                        />
-                                                    <field name="pricelist_id" />
-                                                    <field name="price_unit" />
-                                                    <field name="price_subtotal" />
-                                                </group>
-                                            </group>
-                                            <notebook />
-                                        </form>
-                                    </field>
-                                    <group name="manual_1" colspan="4" col="2">
-                                        <group name="manual_1_1" colspan="1" col="2">
-                                            <field
-                                                    name="amount_manual_fulfillment"
-                                                    string="Amount"
-                                                />
-                                        </group>
-                                        <group name="manual_1_2" colspan="1" col="2">
-                                        </group>
-                                    </group>
-                                </page>
-                            </notebook>
-                            <group name="detail_footer" colspan="4" col="2">
-                                <group name="detail_footer_1" colspan="1" col="2">
-                                    <field name="amount_fulfilled" />
+                                <group name="manual_form_1_2" colspan="1" col="2">
+                                    <field name="uom_quantity" />
+                                    <field
+                                            name="allowed_uom_ids"
+                                            widget="many2many_tags"
+                                            invisible="1"
+                                        />
+                                    <field
+                                            name="uom_id"
+                                            domain="[('id','in',allowed_uom_ids)]"
+                                        />
                                 </group>
                             </group>
                         </form>
@@ -184,10 +116,10 @@
 <menuitem
         id="performance_obligation_acceptance_menu"
         name="Performance Obligation Acceptances"
-        parent="ssi_revenue_recognition.menu_revenue_recognition"
+        parent="ssi_service.menu_root_service"
         action="performance_obligation_acceptance_action"
         groups="performance_obligation_acceptance_viewer_group"
-        sequence="10"
+        sequence="40"
     />
 
 </odoo>
