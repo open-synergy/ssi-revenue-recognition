@@ -5,6 +5,7 @@ ssi-financial-accounting https://github.com/open-synergy/ssi-financial-accountin
 ssi-cost-accounting https://github.com/open-synergy/ssi-cost-accounting 14.0
 ssi-budget https://github.com/open-synergy/ssi-budget 14.0
 opnsynid-service https://github.com/open-synergy/opnsynid-service 14.0
+opnsynid-hr-timesheet https://github.com/open-synergy/opnsynid-hr-timesheet 14.0
 oca-server-tools https://github.com/OCA/server-tools.git 14.0
 oca-currency https://github.com/OCA/currency.git 14.0
 oca-reporting-engine https://github.com/OCA/reporting-engine.git 14.0
