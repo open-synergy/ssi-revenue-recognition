@@ -174,9 +174,11 @@ class PerformanceObligationAcceptance(models.Model):
 
     def _compute_qty_fulfilled(self):
         for record in self:
-            result = getattr(
-                record, record.performance_obligation_id.fulfillment_field_id.name
-            )
+            result = 0.0
+            if record.performance_obligation_id:
+                result = getattr(
+                    record, record.performance_obligation_id.fulfillment_field_id.name
+                )
             record.qty_fulfilled = result
 
     @api.model
