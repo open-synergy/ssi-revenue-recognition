@@ -10,10 +10,10 @@ from odoo.addons.ssi_decorator import ssi_decorator
 class ServiceContractPerformanceObligation(models.Model):
     _name = "service_contract.performance_obligation"
     _inherit = [
-        "mixin.transaction_confirm",
-        "mixin.transaction_open",
-        "mixin.transaction_done",
         "mixin.transaction_cancel",
+        "mixin.transaction_done",
+        "mixin.transaction_open",
+        "mixin.transaction_confirm",
         "mixin.product_line_price",
     ]
     _description = "Service Contract Performance Obligation"
@@ -27,18 +27,12 @@ class ServiceContractPerformanceObligation(models.Model):
     _after_approved_method = "action_open"
 
     # Policy fields visibility
-    _automatically_insert_confirm_policy_fields = False
     _automatically_insert_open_policy_fields = False
     _automatically_insert_done_policy_fields = False
-    _automatically_insert_cancel_policy_fields = False
 
     # Button visibility
-    _automatically_insert_confirm_button = False
-    _automatically_insert_approve_button = False
-    _automatically_insert_reject_button = False
-    _automatically_insert_open_button = False
     _automatically_insert_done_button = False
-    _automatically_insert_cancel_button = False
+    _automatically_insert_open_button = False
 
     # Sequence attribute
     _create_sequence_state = "open"
@@ -52,6 +46,23 @@ class ServiceContractPerformanceObligation(models.Model):
         "cancel_ok",
         "done_ok",
         "manual_number_ok",
+    ]
+    _header_button_order = [
+        "action_confirm",
+        "action_approve_approval",
+        "action_reject_approval",
+        "%(ssi_transaction_cancel_mixin.base_select_cancel_reason_action)d",
+        "action_restart",
+    ]
+
+    # Attributes related to add element on search view automatically
+    _state_filter_order = [
+        "dom_draft",
+        "dom_confirm",
+        "dom_reject",
+        "dom_open",
+        "dom_done",
+        "dom_cancel",
     ]
 
     contract_id = fields.Many2one(
@@ -239,20 +250,6 @@ class ServiceContractPerformanceObligation(models.Model):
         store=True,
         currency_field="currency_id",
     )
-    state = fields.Selection(
-        string="State",
-        default="draft",
-        required=True,
-        readonly=True,
-        selection=[
-            ("draft", "Draft"),
-            ("confirm", "Waiting for Approval"),
-            ("open", "In Progress"),
-            ("done", "Done"),
-            ("cancel", "Cancelled"),
-            ("reject", "Rejected"),
-        ],
-    )
 
     @api.model
     def _get_policy_field(self):
@@ -391,3 +388,9 @@ class ServiceContractPerformanceObligation(models.Model):
             "date_start": self.date_start,
             "date_end": self.date_end,
         }
+
+    @ssi_decorator.insert_on_form_view()
+    def _insert_form_element(self, view_arch):
+        if self._automatically_insert_view_element:
+            view_arch = self._reconfigure_statusbar_visible(view_arch)
+        return view_arch

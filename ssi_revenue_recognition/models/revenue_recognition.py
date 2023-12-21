@@ -9,9 +9,9 @@ from odoo.addons.ssi_decorator import ssi_decorator
 class RevenueRecognition(models.Model):
     _name = "revenue_recognition"
     _inherit = [
-        "mixin.transaction_confirm",
-        "mixin.transaction_done",
         "mixin.transaction_cancel",
+        "mixin.transaction_done",
+        "mixin.transaction_confirm",
         "mixin.company_currency",
         "mixin.date_duration",
     ]
@@ -264,19 +264,6 @@ class RevenueRecognition(models.Model):
         string="# Move",
         comodel_name="account.move",
         readonly=True,
-    )
-    state = fields.Selection(
-        string="State",
-        default="draft",
-        required=True,
-        readonly=True,
-        selection=[
-            ("draft", "Draft"),
-            ("confirm", "Waiting for Approval"),
-            ("done", "Done"),
-            ("cancel", "Cancelled"),
-            ("reject", "Rejected"),
-        ],
     )
 
     @api.model
@@ -680,3 +667,9 @@ class RevenueRecognition(models.Model):
             move.button_cancel()
 
         move.with_context(force_delete=True).unlink()
+
+    @ssi_decorator.insert_on_form_view()
+    def _insert_form_element(self, view_arch):
+        if self._automatically_insert_view_element:
+            view_arch = self._reconfigure_statusbar_visible(view_arch)
+        return view_arch
