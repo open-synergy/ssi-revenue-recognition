@@ -14,7 +14,13 @@ None
 
 [//]: # (addons)
 
-This part will be replaced when running the oca-gen-addons-table script from OCA/maintainer-tools.
+Available addons
+----------------
+addon | version | maintainers | summary
+--- | --- | --- | ---
+[ssi_revenue_recognition](ssi_revenue_recognition/) | 14.0.3.4.1 |  | Revenue Recognition
+[ssi_revenue_recognition_full](ssi_revenue_recognition_full/) | 14.0.1.2.1 |  | Revenue Recognition - Full
+[ssi_revenue_recognition_work_log](ssi_revenue_recognition_work_log/) | 14.0.1.0.0 |  | Revenue Recognition - Work Log Integration
 
 [//]: # (end addons)
 
