@@ -53,7 +53,7 @@ class ServiceContract(models.Model):
             total = diff = 0.0
             for pob in record.performance_obligation_ids:
                 total += pob.price_subtotal
-            diff = record.amount_total - total
+            diff = record.amount_untaxed - total
             record.amount_total_pob = total
             record.amount_diff_pob = diff
 

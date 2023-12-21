@@ -3,15 +3,17 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 from odoo import api, fields, models
 
+from odoo.addons.ssi_decorator import ssi_decorator
+
 
 class PerformanceObligationAcceptance(models.Model):
     _name = "performance_obligation_acceptance"
     _inherit = [
         "mixin.date_duration",
         "mixin.partner",
-        "mixin.transaction_confirm",
-        "mixin.transaction_done",
         "mixin.transaction_cancel",
+        "mixin.transaction_done",
+        "mixin.transaction_confirm",
     ]
     _description = "Performance Obligation Acceptance"
 
@@ -146,19 +148,6 @@ class PerformanceObligationAcceptance(models.Model):
         comodel_name="revenue_recognition",
         readonly=True,
     )
-    state = fields.Selection(
-        string="State",
-        default="draft",
-        required=True,
-        readonly=True,
-        selection=[
-            ("draft", "Draft"),
-            ("confirm", "Waiting for Approval"),
-            ("done", "Done"),
-            ("cancel", "Cancelled"),
-            ("reject", "Rejected"),
-        ],
-    )
 
     @api.depends(
         "manual_fulfillment_ids",
@@ -215,3 +204,9 @@ class PerformanceObligationAcceptance(models.Model):
     )
     def onchange_performance_obligation_id(self):
         self.performance_obligation_id = False
+
+    @ssi_decorator.insert_on_form_view()
+    def _insert_form_element(self, view_arch):
+        if self._automatically_insert_view_element:
+            view_arch = self._reconfigure_statusbar_visible(view_arch)
+        return view_arch
