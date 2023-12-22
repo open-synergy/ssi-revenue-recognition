@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2022 OpenSynergy Indonesia
+     Copyright 2022 PT. Simetri Sinergi Indonesia
+     License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+<record id="service_contract_performance_obligation_view_form" model="ir.ui.view">
+    <field name="name">service_contract.performance_obligation - form</field>
+    <field name="model">service_contract.performance_obligation</field>
+    <field
+            name="inherit_id"
+            ref="ssi_revenue_recognition.service_contract_performance_obligation_view_form"
+        />
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="contract_id" domain="[('state','=','draft')]" />
+                <field name="partner_id" widget="many2one_avatar" />
+                <field name="analytic_account_id" />
+            </xpath>
+            <xpath expr="//group[@name='header_right']" position="inside">
+                 <field name="revenue_recognition_timing" />
+                <field
+                        name="progress_completion_method"
+                        attrs="{'invisible':[('revenue_recognition_timing','=','point_in_time')]}"
+                    />
+                <field name="fulfillment_field_id" />
+                <field name="require_date" invisible="1" />
+                <field name="readonly_date" invisible="1" />
+                <field name="invisible_date" invisible="1" />
+                <field
+                        name="date_start"
+                        attrs="{'invisible': [('invisible_date','=',True)], 'required': [('require_date','=',True)], 'readonly': [('readonly_date','=',True)]}"
+                    />
+                <field
+                        name="date_end"
+                        attrs="{'invisible': [('invisible_date','=',True)], 'required': [('require_date','=',True)], 'readonly': [('readonly_date','=',True)]}"
+                    />
+            </xpath>
+            <xpath expr="//group[@name='header_center']" position="inside">
+                <field name="title" />
+            </xpath>
+            <xpath expr="//page[@name='acceptance']" position="after">
+                <page name="project" string="Project">
+                    <group name="project_1" colspan="4" col="2">
+                        <field name="auto_create_project" />
+                        <field name="project_id" />
+                    </group>
+                </page>
+            </xpath>
+        </data>
+    </field>
+</record>
+
+</odoo>
