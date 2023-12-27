@@ -12,33 +12,6 @@
         />
     <field name="arch" type="xml">
         <data>
-            <xpath expr="//field[@name='user_id']" position="after">
-                <field name="contract_id" domain="[('state','=','draft')]" />
-                <field name="partner_id" widget="many2one_avatar" />
-                <field name="analytic_account_id" />
-            </xpath>
-            <xpath expr="//group[@name='header_right']" position="inside">
-                 <field name="revenue_recognition_timing" />
-                <field
-                        name="progress_completion_method"
-                        attrs="{'invisible':[('revenue_recognition_timing','=','point_in_time')]}"
-                    />
-                <field name="fulfillment_field_id" />
-                <field name="require_date" invisible="1" />
-                <field name="readonly_date" invisible="1" />
-                <field name="invisible_date" invisible="1" />
-                <field
-                        name="date_start"
-                        attrs="{'invisible': [('invisible_date','=',True)], 'required': [('require_date','=',True)], 'readonly': [('readonly_date','=',True)]}"
-                    />
-                <field
-                        name="date_end"
-                        attrs="{'invisible': [('invisible_date','=',True)], 'required': [('require_date','=',True)], 'readonly': [('readonly_date','=',True)]}"
-                    />
-            </xpath>
-            <xpath expr="//group[@name='header_center']" position="inside">
-                <field name="title" />
-            </xpath>
             <xpath expr="//page[@name='acceptance']" position="after">
                 <page name="project" string="Project">
                     <group name="project_1" colspan="4" col="2">
