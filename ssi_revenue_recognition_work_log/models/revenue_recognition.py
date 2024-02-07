@@ -4,10 +4,10 @@
 from odoo import api, fields, models
 
 
-class PerformanceObligationAcceptance(models.Model):
-    _name = "performance_obligation_acceptance"
+class RevenueRecognition(models.Model):
+    _name = "revenue_recognition"
     _inherit = [
-        "performance_obligation_acceptance",
+        "revenue_recognition",
         "mixin.work_object",
     ]
 
