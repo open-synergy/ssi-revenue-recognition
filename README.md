@@ -6,7 +6,7 @@
 
 # ssi-revenue-recognition
 
-None
+ssi-revenur-recognition
 
 <!-- /!\ do not modify below this line -->
 
@@ -14,14 +14,7 @@ None
 
 [//]: # (addons)
 
-Available addons
-----------------
-addon | version | maintainers | summary
---- | --- | --- | ---
-[ssi_revenue_recognition](ssi_revenue_recognition/) | 14.0.3.5.0 |  | Revenue Recognition
-[ssi_revenue_recognition_full](ssi_revenue_recognition_full/) | 14.0.1.2.1 |  | Revenue Recognition - Full
-[ssi_revenue_recognition_project](ssi_revenue_recognition_project/) | 14.0.1.1.0 |  | Revenue Recognition + Project Integration
-[ssi_revenue_recognition_work_log](ssi_revenue_recognition_work_log/) | 14.0.1.0.0 |  | Revenue Recognition - Work Log Integration
+This part will be replaced when running the oca-gen-addons-table script from OCA/maintainer-tools.
 
 [//]: # (end addons)
 
