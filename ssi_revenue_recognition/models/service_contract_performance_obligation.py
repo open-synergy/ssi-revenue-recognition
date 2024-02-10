@@ -190,7 +190,7 @@ class ServiceContractPerformanceObligation(models.Model):
         string="Date Start",
     )
     date_end = fields.Date(
-        string="Date Start",
+        string="Date End",
     )
     require_date = fields.Boolean(
         string="Require Date",
