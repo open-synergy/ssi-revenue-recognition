@@ -160,7 +160,7 @@ class ServiceContractPerformanceObligation(models.Model):
         comodel_name="res.partner",
         string="Customer",
         related="analytic_account_id.partner_id",
-        store=True
+        store=True,
     )
     progress_completion_method = fields.Selection(
         string="Progress Completion Method",
