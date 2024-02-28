@@ -156,6 +156,12 @@ class ServiceContractPerformanceObligation(models.Model):
             ],
         },
     )
+    analytic_partner_id = fields.Many2one(
+        comodel_name="res.partner",
+        string="Customer",
+        related="analytic_account_id.partner_id",
+        store=True,
+    )
     progress_completion_method = fields.Selection(
         string="Progress Completion Method",
         selection=[
