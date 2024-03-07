@@ -18,10 +18,10 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
-[ssi_revenue_recognition](ssi_revenue_recognition/) | 14.0.3.8.0 |  | Revenue Recognition
+[ssi_revenue_recognition](ssi_revenue_recognition/) | 14.0.3.9.0 |  | Revenue Recognition
 [ssi_revenue_recognition_full](ssi_revenue_recognition_full/) | 14.0.1.2.1 |  | Revenue Recognition - Full
 [ssi_revenue_recognition_project](ssi_revenue_recognition_project/) | 14.0.1.1.0 |  | Revenue Recognition + Project Integration
-[ssi_revenue_recognition_work_log](ssi_revenue_recognition_work_log/) | 14.0.1.1.0 |  | Revenue Recognition - Work Log Integration
+[ssi_revenue_recognition_work_log](ssi_revenue_recognition_work_log/) | 14.0.1.2.0 |  | Revenue Recognition - Work Log Integration
 
 [//]: # (end addons)
 
