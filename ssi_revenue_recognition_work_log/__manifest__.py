@@ -12,7 +12,9 @@
         "ssi_revenue_recognition",
         "ssi_work_log_mixin",
     ],
-    "data": [],
+    "data": [
+        "views/performance_obligation_acceptance_views.xml",
+    ],
     "demo": [],
     "images": [],
 }
