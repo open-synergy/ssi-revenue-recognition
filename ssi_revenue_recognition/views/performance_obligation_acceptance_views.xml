@@ -13,6 +13,52 @@
     <field name="mode">primary</field>
     <field name="arch" type="xml">
         <data>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="partner_id"/>
+                <field name="contact_partner_id"/>
+                <field name="contract_id"/>
+                <field name="performance_obligation_id"/>
+                <field name="date"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+            </xpath>
+            <xpath expr="//filter[@name='grp_responsible']" position="after">
+                <filter
+                        name="grp_partner"
+                        string="Partner"
+                        context="{'group_by':'partner_id'}"
+                    />
+                <filter
+                        name="grp_contact"
+                        string="Contact"
+                        context="{'group_by':'contact_partner_id'}"
+                    />
+                <filter
+                        name="grp_contract"
+                        string="Contract"
+                        context="{'group_by':'contract_id'}"
+                    />
+                <filter
+                        name="grp_performance_obligation"
+                        string="Performance Obligation"
+                        context="{'group_by':'performance_obligation_id'}"
+                    />
+                <filter
+                        name="grp_date"
+                        string="Date"
+                        context="{'group_by':'date'}"
+                    />
+                <filter
+                        name="grp_date_start"
+                        string="Date Start"
+                        context="{'group_by':'date_start'}"
+                    />
+                <filter
+                        name="grp_date_end"
+                        string="Date End"
+                        context="{'group_by':'date_end'}"
+                    />
+            </xpath>
         </data>
     </field>
 </record>
