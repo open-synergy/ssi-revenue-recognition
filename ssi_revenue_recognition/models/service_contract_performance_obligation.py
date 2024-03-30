@@ -158,7 +158,7 @@ class ServiceContractPerformanceObligation(models.Model):
     )
     analytic_partner_id = fields.Many2one(
         comodel_name="res.partner",
-        string="Customer",
+        string="Analytic Partner",
         related="analytic_account_id.partner_id",
         store=True,
     )
