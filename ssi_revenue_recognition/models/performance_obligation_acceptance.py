@@ -148,6 +148,62 @@ class PerformanceObligationAcceptance(models.Model):
         comodel_name="revenue_recognition",
         readonly=True,
     )
+    previous_performance_obligation_acceptance_ids = fields.Many2many(
+        string="Performance Obligation Acceptance",
+        comodel_name="performance_obligation_acceptance",
+        relation="rel_previous_performance_obligation_acceptance",
+        column1="poa_id",
+        column2="previous_poa_id",
+        compute="_compute_previous_performance_obligation_acceptance_ids",
+        store=True,
+        compute_sudo=True,
+    )
+    qty_fulfilled_accumulated = fields.Float(
+        string="Qty Fulfilled - Accumulated",
+        compute="_compute_qty_accumulated",
+        store=True,
+        compute_sudo=True,
+    )
+    qty_diff_accumulated = fields.Float(
+        string="Qty Diff - Accumulated",
+        compute="_compute_qty_accumulated",
+        store=True,
+        compute_sudo=True,
+    )
+
+    @api.depends(
+        "date",
+        "performance_obligation_id",
+        "performance_obligation_id.acceptance_ids",
+        "performance_obligation_id.acceptance_ids.state",
+        "performance_obligation_id.acceptance_ids.date",
+        "performance_obligation_id.acceptance_ids.qty_fulfilled",
+    )
+    def _compute_previous_performance_obligation_acceptance_ids(self):
+        PoA = self.env["performance_obligation_acceptance"]
+        for record in self:
+            criteria = [
+                ("performance_obligation_id", "=", record.performance_obligation_id.id),
+                ("state", "=", "done"),
+                ("date", "<", record.date),
+            ]
+            result = PoA.search(criteria)
+            record.previous_performance_obligation_acceptance_ids = result
+
+    @api.depends(
+        "previous_performance_obligation_acceptance_ids",
+        "previous_performance_obligation_acceptance_ids.qty_fulfilled",
+    )
+    def _compute_qty_accumulated(self):
+        for record in self:
+            qty_total = record.performance_obligation_id.uom_quantity
+            qty_fulfilled = 0.0
+            for poa in record.previous_performance_obligation_acceptance_ids:
+                qty_fulfilled += poa.qty_fulfilled
+            qty_fulfilled += record.qty_fulfilled
+            qty_diff = qty_total - qty_fulfilled
+            record.qty_fulfilled_accumulated = qty_fulfilled
+            record.qty_diff_accumulated = qty_diff
 
     @api.depends(
         "manual_fulfillment_ids",

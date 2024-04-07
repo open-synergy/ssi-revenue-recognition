@@ -111,6 +111,8 @@
             </xpath>
             <xpath expr="//group[@name='footer_left']" position="inside">
                 <field name="qty_fulfilled" />
+                <field name="qty_fulfilled_accumulated" />
+                <field name="qty_diff_accumulated" />
             </xpath>
             <xpath expr="//page[1]" position="before">
                 <page name="manual" string="Manual Fulfillments">
@@ -142,6 +144,9 @@
                             </group>
                         </form>
                     </field>
+                </page>
+                <page name="previous_poa" string="Previous PoA">
+                    <field name="previous_performance_obligation_acceptance_ids" />
                 </page>
             </xpath>
         </data>
