@@ -17,6 +17,7 @@ class ServiceContractPerformanceObligation(models.Model):
         "mixin.product_line_price",
     ]
     _description = "Service Contract Performance Obligation"
+    _order = "contract_id, sequence, id"
 
     _automatically_insert_view_element = True
 
@@ -255,6 +256,16 @@ class ServiceContractPerformanceObligation(models.Model):
         compute="_compute_quantity_accepted",
         store=True,
         currency_field="currency_id",
+    )
+    sequence = fields.Integer(
+        required=True,
+        default=1,
+        readonly=True,
+        states={
+            "draft": [
+                ("readonly", False),
+            ],
+        },
     )
 
     @api.model
