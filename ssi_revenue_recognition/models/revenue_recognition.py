@@ -163,6 +163,7 @@ class RevenueRecognition(models.Model):
     product_id = fields.Many2one(
         string="Product",
         related="performance_obligation_id.product_id",
+        store=True,
     )
     move_line_ids = fields.Many2many(
         string="Move Lines",

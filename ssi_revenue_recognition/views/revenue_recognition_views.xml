@@ -16,6 +16,12 @@
             <xpath expr="//field[@name='user_id']" position='after'>
                 <field name="type_id" />
                 <field name="journal_id" />
+                <field name="partner_id" />
+                <field name="performance_obligation_id" />
+                <field name="analytic_account_id" />
+                <field name="analytic_budget_id" />
+                <field name="product_id" />
+                <field name="move_id" />
             </xpath>
             <xpath expr="//filter[@name='grp_responsible']" position='after'>
                 <filter
@@ -27,6 +33,36 @@
                         name="grp_journal"
                         string="Journal"
                         context="{'group_by':'journal_id'}"
+                    />
+                <filter
+                        name="grp_partner"
+                        string="Partner"
+                        context="{'group_by':'partner_id'}"
+                    />
+                <filter
+                        name="grp_performance_obligation"
+                        string="# Performance Obligation"
+                        context="{'group_by':'performance_obligation_id'}"
+                    />
+                <filter
+                        name="grp_contract"
+                        string="# Contract"
+                        context="{'group_by':'contract_id'}"
+                    />
+                <filter
+                        name="grp_analytic_account"
+                        string="Analytic Account"
+                        context="{'group_by':'analytic_account_id'}"
+                    />
+                <filter
+                        name="grp_analytic_budget"
+                        string="# Analytic Budget"
+                        context="{'group_by':'analytic_budget_id'}"
+                    />
+                <filter
+                        name="grp_product"
+                        string="Product"
+                        context="{'group_by':'product_id'}"
                     />
             </xpath>
         </data>
