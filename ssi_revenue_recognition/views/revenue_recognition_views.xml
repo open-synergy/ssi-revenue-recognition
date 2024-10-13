@@ -199,6 +199,8 @@
                 <page name="accounting" string="Accounting">
                     <group name="accounting" colspan="4" col="2">
                         <group name="accounting_1" colspan="1" col="2">
+                            <field name="income_amount_policy" />
+                            <field name="expense_amount_policy" />
                             <field name="journal_id" />
                             <field name="unearned_income_account_id" />
                             <field name="income_account_id" />
