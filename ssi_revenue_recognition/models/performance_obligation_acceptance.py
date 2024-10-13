@@ -215,8 +215,8 @@ class PerformanceObligationAcceptance(models.Model):
             qty_fulfilled += record.qty_fulfilled
             qty_diff = qty_total - qty_fulfilled
             if qty_diff < 0.0:
-                qty_accepted = abs(qty_diff)
-                qty_excess = record.qty_fulfilled + qty_diff
+                qty_excess = abs(qty_diff)
+                qty_accepted = record.qty_fulfilled + qty_diff
             else:
                 qty_accepted = record.qty_fulfilled
 
