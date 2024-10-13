@@ -159,13 +159,25 @@ class PerformanceObligationAcceptance(models.Model):
         compute_sudo=True,
     )
     qty_fulfilled_accumulated = fields.Float(
-        string="Qty Fulfilled - Accumulated",
+        string="Qty Fulfilled + Accumulated",
         compute="_compute_qty_accumulated",
         store=True,
         compute_sudo=True,
     )
     qty_diff_accumulated = fields.Float(
         string="Qty Diff - Accumulated",
+        compute="_compute_qty_accumulated",
+        store=True,
+        compute_sudo=True,
+    )
+    qty_accepted = fields.Float(
+        string="Qty Accepted",
+        compute="_compute_qty_accumulated",
+        store=True,
+        compute_sudo=True,
+    )
+    qty_excess = fields.Float(
+        string="Excess Qty",
         compute="_compute_qty_accumulated",
         store=True,
         compute_sudo=True,
@@ -197,13 +209,21 @@ class PerformanceObligationAcceptance(models.Model):
     def _compute_qty_accumulated(self):
         for record in self:
             qty_total = record.performance_obligation_id.uom_quantity
-            qty_fulfilled = 0.0
+            qty_fulfilled = qty_accepted = qty_excess = 0.0
             for poa in record.previous_performance_obligation_acceptance_ids:
                 qty_fulfilled += poa.qty_fulfilled
             qty_fulfilled += record.qty_fulfilled
             qty_diff = qty_total - qty_fulfilled
+            if qty_diff < 0.0:
+                qty_accepted = abs(qty_diff)
+                qty_excess = record.qty_fulfilled + qty_diff
+            else:
+                qty_accepted = record.qty_fulfilled
+
             record.qty_fulfilled_accumulated = qty_fulfilled
             record.qty_diff_accumulated = qty_diff
+            record.qty_accepted = qty_accepted
+            record.qty_excess = qty_excess
 
     @api.depends(
         "manual_fulfillment_ids",

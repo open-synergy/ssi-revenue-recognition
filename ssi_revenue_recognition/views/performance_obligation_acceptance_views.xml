@@ -113,6 +113,8 @@
                 <field name="qty_fulfilled" />
                 <field name="qty_fulfilled_accumulated" />
                 <field name="qty_diff_accumulated" />
+                <field name="qty_accepted" />
+                <field name="qty_excess" />
             </xpath>
             <xpath expr="//page[1]" position="before">
                 <page name="manual" string="Manual Fulfillments">
