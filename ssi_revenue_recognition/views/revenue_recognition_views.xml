@@ -186,9 +186,9 @@
                     <field name="performance_obligation_acceptance_ids" />
                     <group name="acceptance_1" colspan="4" col="2">
                         <group name="acceptance_1_1" colspan="1" col="2">
-                            <field name="quantity" />
+                            <field name="quantity" invisible="1" />
                             <field name="quantity_accepted" />
-                            <field name="quantity_diff" />
+                            <field name="quantity_diff" invisible="1" />
                             <field name="percentage_accepted" />
                             <field name="amount_accepted" />
                         </group>

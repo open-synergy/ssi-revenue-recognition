@@ -75,6 +75,7 @@
                 <field name="date_start" />
                 <field name="date_end" />
                 <field name="qty_fulfilled" sum="Total Qty Fulfillment" />
+                <field name="qty_accepted" sum="Total Qty Accepted" />
             </xpath>
         </data>
     </field>

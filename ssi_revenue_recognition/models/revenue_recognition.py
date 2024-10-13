@@ -304,7 +304,7 @@ class RevenueRecognition(models.Model):
         "quantity",
         "performance_obligation_acceptance_ids",
         "performance_obligation_acceptance_ids.state",
-        "performance_obligation_acceptance_ids.qty_fulfilled",
+        "performance_obligation_acceptance_ids.qty_accepted",
     )
     def _compute_quantity_accepted(self):
         for record in self:
@@ -312,7 +312,7 @@ class RevenueRecognition(models.Model):
             for acceptance in record.performance_obligation_acceptance_ids.filtered(
                 lambda r: r.state == "done"
             ):
-                qty_accepted += acceptance.qty_fulfilled
+                qty_accepted += acceptance.qty_accepted
 
             qty_diff = record.quantity - qty_accepted
             try:
