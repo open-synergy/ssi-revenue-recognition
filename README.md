@@ -19,7 +19,7 @@ Available addons
 addon | version | maintainers | summary
 --- | --- | --- | ---
 [ssi_performance_obligation_quality_control](ssi_performance_obligation_quality_control/) | 14.0.1.0.0 |  | Performance Obligation + Quality Control Integration
-[ssi_revenue_recognition](ssi_revenue_recognition/) | 14.0.4.3.0 |  | Revenue Recognition
+[ssi_revenue_recognition](ssi_revenue_recognition/) | 14.0.4.4.0 |  | Revenue Recognition
 [ssi_revenue_recognition_full](ssi_revenue_recognition_full/) | 14.0.1.2.1 |  | Revenue Recognition - Full
 [ssi_revenue_recognition_project](ssi_revenue_recognition_project/) | 14.0.1.1.0 |  | Revenue Recognition + Project Integration
 [ssi_revenue_recognition_work_log](ssi_revenue_recognition_work_log/) | 14.0.1.2.0 |  | Revenue Recognition - Work Log Integration
