@@ -266,6 +266,23 @@ class RevenueRecognition(models.Model):
         comodel_name="account.move",
         readonly=True,
     )
+    income_amount_policy = fields.Selection(
+        string="Income Amount Policy",
+        selection=[
+            ("amount_accepted", "Amount Accepted"),
+        ],
+        default="amount_accepted",
+        required=True,
+    )
+    expense_amount_policy = fields.Selection(
+        string="Expense Amount Policy",
+        selection=[
+            ("balance", "Balance"),
+            ("theoritical_balance", "Theoritical Balance"),
+        ],
+        default="balance",
+        required=True,
+    )
 
     @api.model
     def _get_policy_field(self):
@@ -485,20 +502,11 @@ class RevenueRecognition(models.Model):
 
     @ssi_decorator.post_done_action()
     def _create_accounting_entry(self):
-        pob = self.performance_obligation_id
         self._create_move()
-        if pob.revenue_recognition_timing == "point_in_time":
-            self._create_move_point_in_time()
-        elif (
-            pob.revenue_recognition_timing == "over_time"
-            and pob.progress_completion_method == "input"
-        ):
-            self._create_move_over_time_input()
-        elif (
-            pob.revenue_recognition_timing == "over_time"
-            and pob.progress_completion_method == "output"
-        ):
-            self._create_move_over_time_output()
+        self._create_unearned_income_ml()
+        self._create_income_ml()
+        self._create_expense_ml()
+        self._create_wip_ml()
         self.move_id.action_post()
 
     def _create_move(self):
@@ -513,131 +521,41 @@ class RevenueRecognition(models.Model):
             }
         )
 
-    def _create_move_point_in_time(self):
-        self.ensure_one()
-        self._create_unearned_income_ml_point_in_time()
-        self._create_income_ml_point_in_time()
-        for account in self.account_ids:
-            account._create_wip_ml_point_in_time()
-            account._create_expense_ml_point_in_time()
-
-    def _create_unearned_income_ml_point_in_time(self):
+    def _create_income_ml(self):
         ML = self.env["account.move.line"]
-        ML.with_context(check_move_validity=False).create(
-            self._prepare_unearned_income_ml_point_in_time()
-        )
+        ML.with_context(check_move_validity=False).create(self._prepare_income_ml())
 
-    def _create_income_ml_point_in_time(self):
-        ML = self.env["account.move.line"]
-        ML.with_context(check_move_validity=False).create(
-            self._prepare_income_ml_point_in_time()
-        )
-
-    def _prepare_unearned_income_ml_point_in_time(self):
-        self.ensure_one()
-        pob = self.performance_obligation_id
-        return self._prepare_ml(
-            account=self.unearned_income_account_id,
-            debit=pob.price_subtotal,
-            credit=0.0,
-        )
-
-    def _prepare_income_ml_point_in_time(self):
-        self.ensure_one()
-        pob = self.performance_obligation_id
-        return self._prepare_ml(
-            account=self.income_account_id,
-            debit=0.0,
-            credit=pob.price_subtotal,
-        )
-
-    def _create_move_over_time_input(self):
-        self.ensure_one()
-        self._create_unearned_income_ml_over_time_input()
-        self._create_income_ml_over_time_input()
-        for account in self.account_ids:
-            account._create_wip_ml_over_time_input()
-            account._create_expense_ml_over_time_input()
-
-    def _create_move_over_time_output(self):
-        self.ensure_one()
-        self._create_unearned_income_ml_over_time_output()
-        self._create_income_ml_over_time_output()
-        for account in self.account_ids:
-            account._create_wip_ml_over_time_output()
-            account._create_expense_ml_over_time_output()
-
-    def _create_unearned_income_ml_over_time_output(self):
-        ML = self.env["account.move.line"]
-        ML.with_context(check_move_validity=False).create(
-            self._prepare_unearned_income_ml_over_time_output()
-        )
-
-    def _create_income_ml_over_time_output(self):
-        ML = self.env["account.move.line"]
-        ML.with_context(check_move_validity=False).create(
-            self._prepare_income_ml_over_time_output()
-        )
-
-    def _prepare_unearned_income_ml_over_time_output(self):
-        self.ensure_one()
-        return self._prepare_ml(
-            account=self.unearned_income_account_id,
-            debit=self.amount_accepted,
-            credit=0.0,
-        )
-
-    def _prepare_income_ml_over_time_output(self):
+    def _prepare_income_ml(self):
         self.ensure_one()
         return self._prepare_ml(
             account=self.income_account_id,
+            credit=getattr(self, self.income_amount_policy),
             debit=0.0,
-            credit=self.amount_accepted,
         )
 
-    def _create_unearned_income_ml_over_time_input(self):
+    def _create_unearned_income_ml(self):
         ML = self.env["account.move.line"]
-        ML.with_context(check_move_validity=False).create(
-            self._prepare_unearned_income_ml_over_time_input()
-        )
-
-    def _create_income_ml_over_time_input(self):
-        ML = self.env["account.move.line"]
-        ML.with_context(check_move_validity=False).create(
-            self._prepare_income_ml_over_time_input()
-        )
-
-    def _prepare_unearned_income_ml_over_time_input(self):
-        self.ensure_one()
-        return self._prepare_ml(
-            account=self.unearned_income_account_id,
-            debit=self.theoritical_accepted,
-            credit=0.0,
-        )
-
-    def _prepare_income_ml_over_time_input(self):
-        self.ensure_one()
-        return self._prepare_ml(
-            account=self.income_account_id,
-            debit=0.0,
-            credit=self.theoritical_accepted,
-        )
-
-    def _prepare_account_move(self):
-        return {
-            "name": self.name,
-            "date": self.date,
-            "journal_id": self.journal_id.id,
-        }
-
-    def _create_income_move_lines(self):
-        self.ensure_one()
-        ML = self.env["account.move.line"]
-
         ML.with_context(check_move_validity=False).create(
             self._prepare_unearned_income_ml()
         )
-        ML.with_context(check_move_validity=False).create(self._prepare_income_ml())
+
+    def _prepare_unearned_income_ml(self):
+        self.ensure_one()
+        return self._prepare_ml(
+            account=self.unearned_income_account_id,
+            debit=getattr(self, self.income_amount_policy),
+            credit=0.0,
+        )
+
+    def _create_expense_ml(self):
+        self.ensure_one()
+        for expense in self.account_ids:
+            expense._create_expense_ml()
+
+    def _create_wip_ml(self):
+        self.ensure_one()
+        for expense in self.account_ids:
+            expense._create_wip_ml()
 
     def _prepare_ml(self, account, debit, credit):
         pob = self.performance_obligation_id
@@ -648,6 +566,13 @@ class RevenueRecognition(models.Model):
             "debit": debit,
             "credit": credit,
             "move_id": self.move_id.id,
+        }
+
+    def _prepare_account_move(self):
+        return {
+            "name": self.name,
+            "date": self.date,
+            "journal_id": self.journal_id.id,
         }
 
     @ssi_decorator.post_cancel_action()

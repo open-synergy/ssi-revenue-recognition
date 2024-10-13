@@ -106,88 +106,30 @@ class RevenueRecognitionAccount(models.Model):
                 record.recognition_id.percentage_accepted / 100.00
             ) * record.budget
 
-    def _create_wip_ml_point_in_time(self):
-        ML = self.env["account.move.line"]
-        ML.with_context(check_move_validity=False).create(
-            self._prepare_wip_ml_point_in_time()
-        )
-
-    def _create_expense_ml_point_in_time(self):
-        ML = self.env["account.move.line"]
-        ML.with_context(check_move_validity=False).create(
-            self._prepare_expense_ml_point_in_time()
-        )
-
-    def _create_wip_ml_over_time_output(self):
-        ML = self.env["account.move.line"]
-        ML.with_context(check_move_validity=False).create(
-            self._prepare_wip_ml_over_time_output()
-        )
-
-    def _create_expense_ml_over_time_output(self):
-        ML = self.env["account.move.line"]
-        ML.with_context(check_move_validity=False).create(
-            self._prepare_expense_ml_over_time_output()
-        )
-
-    def _create_wip_ml_over_time_input(self):
-        ML = self.env["account.move.line"]
-        ML.with_context(check_move_validity=False).create(
-            self._prepare_wip_ml_over_time_input()
-        )
-
-    def _create_expense_ml_over_time_input(self):
-        ML = self.env["account.move.line"]
-        ML.with_context(check_move_validity=False).create(
-            self._prepare_expense_ml_over_time_input()
-        )
-
-    def _prepare_wip_ml_point_in_time(self):
+    def _create_expense_ml(self):
         self.ensure_one()
-        return self._prepare_ml(
-            account=self.wip_account_id,
-            debit=0.0,
-            credit=self.balance,
-        )
+        ML = self.env["account.move.line"]
+        ML.with_context(check_move_validity=False).create(self._prepare_expense_ml())
 
-    def _prepare_expense_ml_point_in_time(self):
+    def _prepare_expense_ml(self):
         self.ensure_one()
         return self._prepare_ml(
             account=self.expense_account_id,
-            debit=self.balance,
+            debit=getattr(self, self.recognition_id.expense_amount_policy),
             credit=0.0,
         )
 
-    def _prepare_wip_ml_over_time_output(self):
+    def _create_wip_ml(self):
+        self.ensure_one()
+        ML = self.env["account.move.line"]
+        ML.with_context(check_move_validity=False).create(self._prepare_wip_ml())
+
+    def _prepare_wip_ml(self):
         self.ensure_one()
         return self._prepare_ml(
             account=self.wip_account_id,
+            credit=getattr(self, self.recognition_id.expense_amount_policy),
             debit=0.0,
-            credit=self.theoritical_balance,
-        )
-
-    def _prepare_expense_ml_over_time_output(self):
-        self.ensure_one()
-        return self._prepare_ml(
-            account=self.expense_account_id,
-            debit=self.theoritical_balance,
-            credit=0.0,
-        )
-
-    def _prepare_wip_ml_over_time_input(self):
-        self.ensure_one()
-        return self._prepare_ml(
-            account=self.wip_account_id,
-            debit=0.0,
-            credit=self.balance,
-        )
-
-    def _prepare_expense_ml_over_time_input(self):
-        self.ensure_one()
-        return self._prepare_ml(
-            account=self.expense_account_id,
-            debit=self.balance,
-            credit=0.0,
         )
 
     def _prepare_ml(self, account, debit, credit):
