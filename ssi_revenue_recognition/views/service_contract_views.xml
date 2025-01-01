@@ -31,12 +31,31 @@
                         attrs="{'invisible':[('lock_budget','=',False)]}"
                     />
             </xpath>
+            <xpath
+                    expr="//field[@name='fix_item_ids']/tree/field[@name='amount_total']"
+                    position="after"
+                >
+                <field name="pob_id" />
+                <button
+                        name="action_create_pob"
+                        type="object"
+                        icon="fa-gear"
+                        help="Create performance obligation"
+                    />
+            </xpath>
             <xpath expr="//page[@name='note']" position="before">
                 <page name="performance_obligation" string="Performance Obligations">
                     <group name="pob_1" colspan="4" col="2">
                         <field name="amount_total_pob" string="Total" />
                         <field name="amount_diff_pob" string="Diff." />
                     </group>
+                    <button
+                            name="action_open_pob"
+                            string="PoB(s)"
+                            type="object"
+                            icon="fa-bars"
+                            class="oe_highlight"
+                        />
                     <field name="performance_obligation_ids" />
                 </page>
             </xpath>
