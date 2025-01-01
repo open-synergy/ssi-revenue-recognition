@@ -13,6 +13,19 @@
             <xpath expr="//field[@name='analytic_group_id']" position="after">
                 <field name="pob_analytic_group_id" />
             </xpath>
+            <xpath expr="//page[last()]" position="before">
+                <page name="revenue_recognition" string="Revenue Recognition">
+                    <group name="revenue_recognition_1" colspan="4" col="2">
+                        <group name="revenue_recognition_1_1" colspan="1" col="2">
+                            <field name="pob_analytic_group_id" />
+                        </group>
+                    </group>
+                    <seperator string="Auto Create PoB Products" />
+                    <field name="auto_create_pob_product_ids" />
+                    <seperator string="Auto Create PoB Product Categories" />
+                    <field name="auto_create_pob_product_categ_ids" />
+                </page>
+            </xpath>
         </data>
     </field>
 </record>

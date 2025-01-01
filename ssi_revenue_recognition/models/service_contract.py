@@ -79,20 +79,48 @@ class ServiceContract(models.Model):
         for record in self.sudo():
             record._unlock_budget()
 
+    def action_open_pob(self):
+        for record in self.sudo():
+            result = record._open_pob()
+        return result
+
+    def _open_pob(self):
+        waction = self.env.ref(
+            "ssi_revenue_recognition.service_contract_performance_obligation_action"
+        ).read()[0]
+        waction.update(
+            {
+                "view_mode": "tree,form",
+                "domain": [("id", "in", self.performance_obligation_ids.ids)],
+                "context": {},
+            }
+        )
+        return waction
+
     @ssi_decorator.post_confirm_action()
-    def _11_confirm_performance_obligation(self):
+    def _11_create_pob(self):
+        for item in self.fix_item_ids:
+            if not item.pob_id and (
+                item.product_id.id in self.type_id.auto_create_pob_product_ids.ids
+                or item.product_id.categ_id.id
+                in self.type_id.auto_create_pob_product_categ_ids.ids
+            ):
+                item._create_pob()
+
+    @ssi_decorator.post_confirm_action()
+    def _12_confirm_performance_obligation(self):
         for pob in self.performance_obligation_ids:
-            pob.action_confirm()
+            pob.with_context(bypass_policy_check=True).action_confirm()
 
     @ssi_decorator.post_approve_action()
     def _11_approve_performance_obligation(self):
         for pob in self.performance_obligation_ids:
-            pob.action_approve_approval()
+            pob.with_context(bypass_policy_check=True).action_approve_approval()
 
     @ssi_decorator.post_reject_action()
     def _11_reject_performance_obligation(self):
         for pob in self.performance_obligation_ids:
-            pob.action_reject_approval()
+            pob.with_context(bypass_policy_check=True).action_reject_approval()
 
     # @ssi_decorator.post_open_action()
     # def _11_approve_performance_obligation(self):
@@ -102,12 +130,12 @@ class ServiceContract(models.Model):
     @ssi_decorator.post_cancel_action()
     def _11_cancel_performance_obligation(self):
         for pob in self.performance_obligation_ids:
-            pob.action_cancel()
+            pob.with_context(bypass_policy_check=True).action_cancel()
 
     @ssi_decorator.post_restart_action()
     def _11_done_performance_obligation(self):
         for pob in self.performance_obligation_ids:
-            pob.action_restart()
+            pob.with_context(bypass_policy_check=True).action_restart()
 
     # @ssi_decorator.post_open_action()
     # def _11_create_pob_analytic_account(self):
