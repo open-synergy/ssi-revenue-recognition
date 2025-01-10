@@ -2,3 +2,4 @@
 odoo14-addon-ssi-quality-control
 odoo14-addon-ssi-operating-unit-mixin
 odoo14-addon-ssi-project-operating-unit
+odoo14-addon-ssi-service-operating-unit
