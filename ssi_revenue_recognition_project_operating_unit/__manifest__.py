@@ -10,7 +10,7 @@
     "license": "AGPL-3",
     "installable": True,
     "depends": [
-        "ssi_revenue_recognition",
+        "ssi_revenue_recognition_operating_unit",
         "ssi_project_operating_unit",
     ],
     "data": [],
