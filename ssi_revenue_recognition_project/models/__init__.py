@@ -5,4 +5,5 @@
 from . import (
     service_contract_performance_obligation,
     service_type,
+    service_contract_fix_item,
 )
