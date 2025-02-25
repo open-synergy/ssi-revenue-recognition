@@ -156,6 +156,7 @@ class ServiceContractPerformanceObligation(models.Model):
                 ("readonly", False),
             ],
         },
+        copy=False,
     )
     analytic_partner_id = fields.Many2one(
         comodel_name="res.partner",
@@ -235,6 +236,7 @@ class ServiceContractPerformanceObligation(models.Model):
         comodel_name="performance_obligation_acceptance",
         inverse_name="performance_obligation_id",
         readonly=True,
+        copy=False,
     )
     quantity_accepted = fields.Float(
         string="Quantity Accepted",
