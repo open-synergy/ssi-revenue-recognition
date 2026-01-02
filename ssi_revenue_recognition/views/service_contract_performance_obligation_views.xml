@@ -114,7 +114,10 @@
     <field name="arch" type="xml">
         <data>
             <xpath expr="//field[@name='user_id']" position="after">
-                <field name="contract_id" domain="[('state','in',['draft','open'])]" />
+                <field
+                        name="contract_id"
+                        domain="[('state','!=',['cancel','terminate','reject'])]"
+                    />
                 <field name="sequence" />
                 <field name="partner_id" widget="many2one_avatar" />
                 <field name="analytic_account_id" />
