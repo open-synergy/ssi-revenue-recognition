@@ -5,10 +5,10 @@
 from odoo import models
 
 
-class ServiceContractPerformanceObligation(models.Model):
-    _name = "service_contract.performance_obligation"
+class PerformanceObligation(models.Model):
+    _name = "performance_obligation"
     _inherit = [
-        "service_contract.performance_obligation",
+        "performance_obligation",
         "mixin.qc_worksheet",
     ]
     _qc_worksheet_create_page = True
