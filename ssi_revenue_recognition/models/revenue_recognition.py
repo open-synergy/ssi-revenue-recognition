@@ -95,21 +95,9 @@ class RevenueRecognition(models.Model):
             ],
         },
     )
-    contract_id = fields.Many2one(
-        string="# Contract",
-        comodel_name="service.contract",
-        required=True,
-        readonly=True,
-        ondelete="restrict",
-        states={
-            "draft": [
-                ("readonly", False),
-            ],
-        },
-    )
     performance_obligation_id = fields.Many2one(
         string="# Performance Obligation",
-        comodel_name="service_contract.performance_obligation",
+        comodel_name="performance_obligation",
         required=True,
         readonly=True,
         ondelete="restrict",
@@ -286,7 +274,7 @@ class RevenueRecognition(models.Model):
 
     @api.model
     def _get_policy_field(self):
-        res = super(RevenueRecognition, self)._get_policy_field()
+        res = super()._get_policy_field()
         policy_field = [
             "confirm_ok",
             "approve_ok",
@@ -368,12 +356,6 @@ class RevenueRecognition(models.Model):
 
     @api.onchange(
         "partner_id",
-    )
-    def onchange_contract_id(self):
-        self.contract_id = False
-
-    @api.onchange(
-        "contract_id",
     )
     def onchange_performance_obligation_id(self):
         self.performance_obligation_id = False

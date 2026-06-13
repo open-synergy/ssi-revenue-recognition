@@ -4,12 +4,13 @@
 
 {
     "name": "Revenue Recognition + Project + Operating Unit Integration",
-    "version": "14.0.2.0.0",
+    "version": "14.0.2.1.0",
     "website": "https://simetri-sinergi.id",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "license": "AGPL-3",
     "installable": True,
     "depends": [
+        "ssi_revenue_recognition_project",
         "ssi_revenue_recognition_operating_unit",
         "ssi_project_operating_unit",
     ],

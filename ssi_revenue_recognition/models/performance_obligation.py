@@ -7,8 +7,8 @@ from odoo import api, fields, models
 from odoo.addons.ssi_decorator import ssi_decorator
 
 
-class ServiceContractPerformanceObligation(models.Model):
-    _name = "service_contract.performance_obligation"
+class PerformanceObligation(models.Model):
+    _name = "performance_obligation"
     _inherit = [
         "mixin.transaction_cancel",
         "mixin.transaction_done",
@@ -16,8 +16,8 @@ class ServiceContractPerformanceObligation(models.Model):
         "mixin.transaction_confirm",
         "mixin.product_line_price",
     ]
-    _description = "Service Contract Performance Obligation"
-    _order = "contract_id, sequence, id"
+    _description = "Performance Obligation"
+    _order = "source_analytic_account_id, sequence, id"
 
     _automatically_insert_view_element = True
 
@@ -66,11 +66,11 @@ class ServiceContractPerformanceObligation(models.Model):
         "dom_cancel",
     ]
 
-    contract_id = fields.Many2one(
-        string="# Contract",
-        comodel_name="service.contract",
+    source_analytic_account_id = fields.Many2one(
+        string="Source Analytic Account",
+        comodel_name="account.analytic.account",
         required=True,
-        ondelete="cascade",
+        ondelete="restrict",
         readonly=True,
         states={
             "draft": [
@@ -80,7 +80,7 @@ class ServiceContractPerformanceObligation(models.Model):
     )
     partner_id = fields.Many2one(
         string="Partner",
-        related="contract_id.partner_id",
+        related="source_analytic_account_id.partner_id",
         store=True,
     )
     title = fields.Char(
@@ -95,8 +95,12 @@ class ServiceContractPerformanceObligation(models.Model):
     )
     date = fields.Date(
         string="Date",
-        related="contract_id.date",
-        store=True,
+        readonly=True,
+        states={
+            "draft": [
+                ("readonly", False),
+            ],
+        },
     )
     product_id = fields.Many2one(
         readonly=True,
@@ -272,7 +276,7 @@ class ServiceContractPerformanceObligation(models.Model):
 
     @api.model
     def _get_policy_field(self):
-        res = super(ServiceContractPerformanceObligation, self)._get_policy_field()
+        res = super()._get_policy_field()
         policy_field = [
             "confirm_ok",
             "approve_ok",
@@ -354,6 +358,10 @@ class ServiceContractPerformanceObligation(models.Model):
         if self.product_id:
             self.title = self.product_id.display_name
 
+    def _get_analytic_group_id(self):
+        self.ensure_one()
+        return self.source_analytic_account_id.group_id.id or False
+
     @ssi_decorator.post_open_action()
     def _10_create_analytic_account(self):
         self.ensure_one()
@@ -374,36 +382,22 @@ class ServiceContractPerformanceObligation(models.Model):
 
     def _prepare_update_analytic_account(self):
         self.ensure_one()
-        contract = self.contract_id
-        if contract.pob_analytic_group_id:
-            group_id = contract.pob_analytic_group_id.id
-        elif contract.analytic_group_id:
-            group_id = contract.analytic_group_id.id
-        else:
-            group_id = False
         return {
             "name": self.title,
             "code": self.name,
-            "partner_id": contract.partner_id.id,
-            "group_id": group_id,
+            "partner_id": self.partner_id.id,
+            "group_id": self._get_analytic_group_id(),
             "date_start": self.date_start,
             "date_end": self.date_end,
         }
 
     def _prepare_analytic_account(self):
         self.ensure_one()
-        contract = self.contract_id
-        if contract.pob_analytic_group_id:
-            group_id = contract.pob_analytic_group_id.id
-        elif contract.analytic_group_id:
-            group_id = contract.analytic_group_id.id
-        else:
-            group_id = False
         return {
             "name": self.title,
             "code": self.name,
-            "partner_id": contract.partner_id.id,
-            "group_id": group_id,
+            "partner_id": self.partner_id.id,
+            "group_id": self._get_analytic_group_id(),
             "date_start": self.date_start,
             "date_end": self.date_end,
         }

@@ -16,7 +16,6 @@
             <xpath expr="//field[@name='name']" position="after">
                 <field name="partner_id" />
                 <field name="contact_partner_id" />
-                <field name="contract_id" />
                 <field name="performance_obligation_id" />
                 <field name="date" />
                 <field name="date_start" />
@@ -32,11 +31,6 @@
                         name="grp_contact"
                         string="Contact"
                         context="{'group_by':'contact_partner_id'}"
-                    />
-                <filter
-                        name="grp_contract"
-                        string="Contract"
-                        context="{'group_by':'contract_id'}"
                     />
                 <filter
                         name="grp_performance_obligation"
@@ -69,7 +63,6 @@
             <xpath expr="//field[@name='company_id']" position="after">
                 <field name="partner_id" />
                 <field name="contact_partner_id" />
-                <field name="contract_id" />
                 <field name="performance_obligation_id" />
                 <field name="date" />
                 <field name="date_start" />
@@ -99,10 +92,9 @@
                         name="contact_partner_id"
                         domain="[('id','in',allowed_contact_ids)]"
                     />
-                <field name="contract_id" domain="[('partner_id','=',partner_id)]" />
                 <field
                         name="performance_obligation_id"
-                        domain="[('contract_id','=',contract_id)]"
+                        domain="[('partner_id','=',partner_id)]"
                     />
             </xpath>
             <xpath expr="//group[@name='header_right']" position="inside">
@@ -166,7 +158,7 @@
 <menuitem
         id="performance_obligation_acceptance_menu"
         name="Performance Obligation Acceptances"
-        parent="ssi_service.menu_root_service"
+        parent="menu_revenue_recognition"
         action="performance_obligation_acceptance_action"
         groups="performance_obligation_acceptance_viewer_group"
         sequence="40"

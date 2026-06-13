@@ -13,7 +13,9 @@
             <xpath expr="//field[@name='group_id']" position="after">
                 <field name="revenue_recognition_type" />
                 <field name="progress_completion_method" />
-
+                <field name="pob_planned_amount" />
+                <field name="amount_total_pob" />
+                <field name="amount_diff_pob" />
             </xpath>
         </data>
     </field>

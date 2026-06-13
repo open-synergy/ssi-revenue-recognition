@@ -2,15 +2,15 @@
 # Copyright 2022 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models
+from odoo import fields, models
 
 from odoo.addons.ssi_decorator import ssi_decorator
 
 
-class ServiceContractPerformanceObligation(models.Model):
-    _name = "service_contract.performance_obligation"
+class PerformanceObligation(models.Model):
+    _name = "performance_obligation"
     _inherit = [
-        "service_contract.performance_obligation",
+        "performance_obligation",
     ]
 
     auto_create_project = fields.Boolean(
@@ -21,13 +21,6 @@ class ServiceContractPerformanceObligation(models.Model):
         string="Project",
         comodel_name="project.project",
     )
-
-    @api.onchange(
-        "contract_id",
-    )
-    def onchange_auto_create_project(self):
-        if self.contract_id:
-            self.auto_create_project = self.contract_id.type_id.pob_auto_create_project
 
     @ssi_decorator.post_open_action()
     def _01_create_project(self):

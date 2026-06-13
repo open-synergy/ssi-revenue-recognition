@@ -10,8 +10,5 @@ from . import (
     revenue_recognition_account,
     performance_obligation_acceptance,
     performance_obligation_acceptance_manual_fulfillment,
-    service_contract,
-    service_contract_performance_obligation,
-    service_contract_fix_item,
-    service_type,
+    performance_obligation,
 )

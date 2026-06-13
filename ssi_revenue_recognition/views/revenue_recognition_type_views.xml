@@ -65,7 +65,7 @@
 <menuitem
         id="revenue_recognition_type_menu"
         name="Revenue Recognition Types"
-        parent="ssi_service.menu_service_configuration"
+        parent="menu_revenue_recognition_configuration"
         action="revenue_recognition_type_action"
         groups="revenue_recognition_type_configuration_group"
         sequence="10"

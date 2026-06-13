@@ -3,9 +3,9 @@
      Copyright 2022 PT. Simetri Sinergi Indonesia
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
-<record id="service_contract_performance_obligation_view_search" model="ir.ui.view">
-    <field name="name">service_contract.performance_obligation - search</field>
-    <field name="model">service_contract.performance_obligation</field>
+<record id="performance_obligation_view_search" model="ir.ui.view">
+    <field name="name">performance_obligation - search</field>
+    <field name="model">performance_obligation</field>
     <field
             name="inherit_id"
             ref="ssi_transaction_mixin.mixin_transaction_view_search"
@@ -14,7 +14,7 @@
     <field name="arch" type="xml">
         <data>
             <xpath expr="//field[@name='user_id']" position="after">
-                <field name="contract_id" />
+                <field name="source_analytic_account_id" />
                 <field name="partner_id" />
                 <field name="analytic_account_id" />
                 <field name="analytic_partner_id" />
@@ -27,9 +27,9 @@
             </xpath>
             <xpath expr="//filter[@name='grp_responsible']" position="after">
                 <filter
-                        name="grp_contract"
-                        string="Contract"
-                        context="{'group_by':'contract_id'}"
+                        name="grp_source_analytic_account"
+                        string="Source Analytic Account"
+                        context="{'group_by':'source_analytic_account_id'}"
                     />
                 <filter
                         name="grp_partner"
@@ -76,18 +76,17 @@
     </field>
 </record>
 
-<record id="service_contract_performance_obligation_view_tree" model="ir.ui.view">
-    <field name="name">service_contract.performance_obligation - tree</field>
-    <field name="model">service_contract.performance_obligation</field>
+<record id="performance_obligation_view_tree" model="ir.ui.view">
+    <field name="name">performance_obligation - tree</field>
+    <field name="model">performance_obligation</field>
     <field name="mode">primary</field>
     <field name="inherit_id" ref="ssi_transaction_mixin.mixin_transaction_view_tree" />
     <field name="arch" type="xml">
         <data>
             <xpath expr="//field[@name='company_id']" position="after">
                 <field name="sequence" invisible="1" />
-                <field name="contract_id" />
+                <field name="source_analytic_account_id" />
                 <field name="partner_id" />
-
                 <field name="title" />
                 <field name="analytic_account_id" optional="hide" />
                 <field name="analytic_partner_id" optional="hide" />
@@ -106,25 +105,22 @@
     </field>
 </record>
 
-<record id="service_contract_performance_obligation_view_form" model="ir.ui.view">
-    <field name="name">service_contract.performance_obligation - form</field>
-    <field name="model">service_contract.performance_obligation</field>
+<record id="performance_obligation_view_form" model="ir.ui.view">
+    <field name="name">performance_obligation - form</field>
+    <field name="model">performance_obligation</field>
     <field name="mode">primary</field>
     <field name="inherit_id" ref="ssi_transaction_mixin.mixin_transaction_view_form" />
     <field name="arch" type="xml">
         <data>
             <xpath expr="//field[@name='user_id']" position="after">
-                <field
-                        name="contract_id"
-                        domain="[('state','!=',['cancel','terminate','reject'])]"
-                    />
+                <field name="source_analytic_account_id" />
                 <field name="sequence" />
                 <field name="partner_id" widget="many2one_avatar" />
                 <field name="analytic_account_id" />
                 <field name="analytic_partner_id" />
             </xpath>
             <xpath expr="//group[@name='header_right']" position="inside">
-                 <field name="revenue_recognition_timing" />
+                <field name="revenue_recognition_timing" />
                 <field
                         name="progress_completion_method"
                         attrs="{'invisible':[('revenue_recognition_timing','=','point_in_time')]}"
@@ -188,23 +184,19 @@
     </field>
 </record>
 
-<record
-        id="service_contract_performance_obligation_action"
-        model="ir.actions.act_window"
-    >
+<record id="performance_obligation_action" model="ir.actions.act_window">
     <field name="name">Performance Obligations</field>
     <field name="type">ir.actions.act_window</field>
-    <field name="res_model">service_contract.performance_obligation</field>
+    <field name="res_model">performance_obligation</field>
     <field name="view_mode">tree,form</field>
 </record>
 
 <menuitem
-        id="service_contract_performance_obligation_menu"
+        id="performance_obligation_menu"
         name="Performance Obligations"
-        parent="ssi_service.menu_root_service"
-        action="service_contract_performance_obligation_action"
-        groups="ssi_service.service_contract_viewer_group"
-        sequence="30"
+        parent="menu_revenue_recognition"
+        action="performance_obligation_action"
+        sequence="20"
     />
 
 </odoo>

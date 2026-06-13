@@ -5,20 +5,20 @@
 from odoo import models
 
 
-class ServiceContractPerformanceObligation(models.Model):
-    _name = "service_contract.performance_obligation"
+class PerformanceObligation(models.Model):
+    _name = "performance_obligation"
     _inherit = [
-        "service_contract.performance_obligation",
+        "performance_obligation",
     ]
 
     def _prepare_project_data(self):
         self.ensure_one()
-        _super = super(ServiceContractPerformanceObligation, self)
+        _super = super()
         result = _super._prepare_project_data()
         result.update(
             {
-                "operating_unit_id": self.contract_id.operating_unit_id
-                and self.contract_id.operating_unit_id.id
+                "operating_unit_id": self.operating_unit_id
+                and self.operating_unit_id.id
                 or False,
             }
         )
