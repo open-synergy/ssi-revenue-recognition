@@ -4,7 +4,7 @@
 
 {
     "name": "Revenue Recognition",
-    "version": "14.0.4.8.0",
+    "version": "14.0.7.0.0",
     "website": "https://simetri-sinergi.id",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "license": "AGPL-3",
@@ -13,7 +13,6 @@
         "ssi_financial_accounting",
         "ssi_cost_accounting",
         "ssi_master_data_mixin",
-        "ssi_service",
         "ssi_analytic_budget",
         "base_automation",
     ],
@@ -36,12 +35,10 @@
         "data/base_automation_data.xml",
         "menu.xml",
         "views/account_analytic_account_views.xml",
-        "views/service_contract_views.xml",
         "views/revenue_recognition_type_views.xml",
         "views/performance_obligation_acceptance_views.xml",
-        "views/service_contract_performance_obligation_views.xml",
+        "views/performance_obligation_views.xml",
         "views/revenue_recognition_views.xml",
-        "views/service_type_views.xml",
     ],
     "demo": [
         "demo/account_account_demo.xml",

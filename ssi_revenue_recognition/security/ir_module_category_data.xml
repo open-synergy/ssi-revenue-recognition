@@ -6,13 +6,13 @@
 <!-- Workflow -->
 <record id="revenue_recognition_workflow_module_category" model="ir.module.category">
     <field name="name">Revenue Recognition</field>
-    <field name="parent_id" ref="ssi_service.service_workflow_module_category" />
+
     <field name="sequence">4</field>
 </record>
 
 <record id="performance_obligation_workflow_module_category" model="ir.module.category">
     <field name="name">Performance Obligation</field>
-    <field name="parent_id" ref="ssi_service.service_workflow_module_category" />
+
     <field name="sequence">5</field>
 </record>
 
@@ -21,7 +21,7 @@
         model="ir.module.category"
     >
     <field name="name">Performance Obligation Acceptance</field>
-    <field name="parent_id" ref="ssi_service.service_workflow_module_category" />
+
     <field name="sequence">5</field>
 </record>
 
@@ -31,7 +31,7 @@
         model="ir.module.category"
     >
     <field name="name">Revenue Recognition</field>
-    <field name="parent_id" ref="ssi_service.service_data_ownership_module_category" />
+
     <field name="sequence">4</field>
 </record>
 
@@ -40,7 +40,7 @@
         model="ir.module.category"
     >
     <field name="name">Performance Obligation</field>
-    <field name="parent_id" ref="ssi_service.service_data_ownership_module_category" />
+
     <field name="sequence">5</field>
 </record>
 
@@ -49,7 +49,7 @@
         model="ir.module.category"
     >
     <field name="name">Performance Obligation Acceptance</field>
-    <field name="parent_id" ref="ssi_service.service_data_ownership_module_category" />
+
     <field name="sequence">5</field>
 </record>
 </odoo>

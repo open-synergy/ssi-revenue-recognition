@@ -45,11 +45,6 @@
                         context="{'group_by':'performance_obligation_id'}"
                     />
                 <filter
-                        name="grp_contract"
-                        string="# Contract"
-                        context="{'group_by':'contract_id'}"
-                    />
-                <filter
                         name="grp_analytic_account"
                         string="Analytic Account"
                         context="{'group_by':'analytic_account_id'}"
@@ -78,7 +73,6 @@
         <data>
             <xpath expr="//field[@name='company_id']" position="after">
                 <field name="partner_id" />
-                <field name="contract_id" />
                 <field name="performance_obligation_id" />
                 <field name="type_id" />
                 <field name="date" />
@@ -110,12 +104,8 @@
                 <field name="company_currency_id" invisible="1" />
                 <field name="partner_id" />
                 <field
-                        name="contract_id"
-                        domain="[('partner_id','=', partner_id),('state','in',['open','done'])]"
-                    />
-                <field
                         name="performance_obligation_id"
-                        domain="[('contract_id','=', contract_id),('state','in',['open','done'])]"
+                        domain="[('partner_id','=', partner_id),('state','in',['open','done'])]"
                     />
                 <field name="analytic_account_id" invisible="1" />
                 <field
@@ -225,7 +215,7 @@
 <menuitem
         id="revenue_recognition_menu"
         name="Revenue Recognitions"
-        parent="ssi_service.menu_root_service"
+        parent="menu_revenue_recognition"
         action="revenue_recognition_action"
         groups="revenue_recognition_viewer_group"
         sequence="40"
