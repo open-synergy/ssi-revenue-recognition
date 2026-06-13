@@ -12,8 +12,10 @@ class PerformanceObligationAcceptance(models.Model):
         "mixin.single_operating_unit",
     ]
 
+    # Acceptance inherits its operating unit from its performance obligation
+    # (which is itself analytic-account based), instead of from a service contract.
     operating_unit_id = fields.Many2one(
-        related="contract_id.operating_unit_id",
+        related="performance_obligation_id.operating_unit_id",
         store=True,
         default=False,
     )

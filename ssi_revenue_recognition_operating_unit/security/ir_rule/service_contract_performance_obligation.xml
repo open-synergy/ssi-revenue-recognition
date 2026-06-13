@@ -7,10 +7,7 @@
     <field
             name="name"
         >Performance Obligation - Responsible to operating unit data</field>
-    <field
-            name="model_id"
-            ref="ssi_revenue_recognition.model_service_contract_performance_obligation"
-        />
+    <field name="model_id" ref="ssi_revenue_recognition.model_performance_obligation" />
     <field
             name="groups"
             eval="[(4, ref('service_contract_performance_obligation_ou_group'))]"
