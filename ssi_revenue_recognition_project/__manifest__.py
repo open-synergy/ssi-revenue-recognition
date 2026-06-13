@@ -4,7 +4,7 @@
 
 {
     "name": "Revenue Recognition + Project Integration",
-    "version": "14.0.1.1.1",
+    "version": "14.0.2.0.0",
     "website": "https://simetri-sinergi.id",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "license": "AGPL-3",
@@ -14,7 +14,6 @@
         "ssi_project",
     ],
     "data": [
-        "views/service_type_views.xml",
         "views/service_contract_performance_obligation_views.xml",
     ],
     "images": [
