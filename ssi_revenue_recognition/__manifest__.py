@@ -13,6 +13,7 @@
         "ssi_financial_accounting",
         "ssi_cost_accounting",
         "ssi_master_data_mixin",
+        "ssi_partner_mixin",
         "ssi_analytic_budget",
         "base_automation",
     ],
