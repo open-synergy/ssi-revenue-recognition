@@ -303,13 +303,11 @@ class RevenueRecognition(models.Model):
                 qty_accepted += acceptance.qty_accepted
 
             qty_diff = record.quantity - qty_accepted
-            try:
+            if record.quantity:
                 percentage = (qty_accepted / record.quantity) * 100.00
                 amount_accepted = (
                     qty_accepted / record.quantity
                 ) * record.performance_obligation_id.price_subtotal
-            except Exception:
-                percentage = 0.0
             record.quantity_accepted = qty_accepted
             record.quantity_diff = qty_diff
             record.percentage_accepted = percentage
@@ -328,13 +326,11 @@ class RevenueRecognition(models.Model):
             for account in record.account_ids:
                 budgeted += account.budget
                 realized += account.balance
-            try:
+            if budgeted:
                 percentage = (realized / budgeted) * 100.00
                 theoritical_accepted = (
                     realized / budgeted
                 ) * record.performance_obligation_id.price_subtotal
-            except Exception:
-                pass
             record.amount_budgeted = budgeted
             record.amount_realized = realized
             record.percent_realized = percentage
