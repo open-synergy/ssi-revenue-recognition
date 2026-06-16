@@ -122,11 +122,14 @@ Dikerjakan **sebelum** fitur PSAK 115. Tiap modul = commit terpisah.
   `UserError` terstruktur bila field tak ketemu (cegah crash).
 - **B2** `ssi_batch_project_assignment_revenue_recognition`: hapus `.pot` duplikat
   `i18n/ssi_project_assignment_revenue_recognition.pot`.
-- **B3** `ssi_accountant_report_revenue_recognition`: tambah `i18n/<module>.pot`.
-- **B4** Dedup compute project vs batch assignment → **no-op** (biarkan; pindah ke mixin
-  lintas-modul berisiko). Hanya dikerjakan bila diminta eksplisit.
-- **B5** Group view kosong `revenue_recognition_1_2` → cek pemakai inherit dulu; beri
-  komentar atau hapus.
+- **B3 — DIBATALKAN.** Pembuatan `.pot` adalah tugas GitHub Action
+  (`oca_export_and_push_pot` di `test.yml`); standar SSI melarang membuat `.pot`/`.po`
+  manual di lokal. Tidak ada tindakan.
+- **B4 — DIBIARKAN (keputusan user).** Duplikasi `_compute_revenue_recognition_field` di
+  dua modul project assignment; tiap method menempel di model berbeda, mengangkat ke
+  mixin lintas-modul tak sepadan. Tidak ada tindakan.
+- **B5 — DIBIARKAN (keputusan user).** Group view kosong `revenue_recognition_1_2`
+  dibiarkan apa adanya. Tidak ada tindakan.
 
 ---
 
@@ -203,3 +206,9 @@ Catat tiap perubahan yang landing (tanggal, fase, modul, versi, ringkasan). Form
   `revenue_recognition_account._compute_percent_realized`). A1 & A4 dibatalkan.
   Verifikasi `odoo -u` lolos (511 modul loaded, tanpa error). Commit `17431af`. Belum
   di-push.
+- 2026-06-14 — Fase B — B1 `ssi_service_revenue_recognition` (repo opnsynid-service,
+  commit `1dbe7ac`): guard `env.ref` + `UserError` terstruktur. B2
+  `ssi_batch_project_assignment_revenue_recognition` (repo opnsynid-project, commit
+  `7b3e2b8`): hapus `.pot` salah tempat. B3 dibatalkan (tugas GH Action); B4 & B5
+  dibiarkan (keputusan user). Verifikasi `odoo -u ssi_service_revenue_recognition`
+  lolos. Belum di-push.
