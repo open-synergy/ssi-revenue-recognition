@@ -23,7 +23,7 @@ class RevenueRecognitionType(models.Model):
         ondelete="restrict",
     )
     income_usage_id = fields.Many2one(
-        string="Unearned Income Usage",
+        string="Income Usage",
         comodel_name="product.usage_type",
         required=True,
         ondelete="restrict",

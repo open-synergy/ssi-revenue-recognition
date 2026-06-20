@@ -93,10 +93,8 @@ class RevenueRecognitionAccount(models.Model):
     def _compute_percent_realized(self):
         for record in self:
             percent_realized = 0.0
-            try:
+            if record.budget:
                 percent_realized = record.balance / record.budget
-            except Exception:
-                percent_realized = 0.0
             record.percent_realized = percent_realized * 100.00
 
     @api.depends("budget", "recognition_id.percentage_accepted")
