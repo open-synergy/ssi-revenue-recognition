@@ -599,6 +599,11 @@ msgid "Full"
 msgstr ""
 
 #. module: ssi_revenue_recognition
+#: model_terms:ir.ui.view,arch_db:ssi_revenue_recognition.revenue_recognition_type_view_search
+msgid "Group By"
+msgstr ""
+
+#. module: ssi_revenue_recognition
 #: model:ir.model.fields,field_description:ssi_revenue_recognition.field_account_analytic_account__id
 #: model:ir.model.fields,field_description:ssi_revenue_recognition.field_performance_obligation__id
 #: model:ir.model.fields,field_description:ssi_revenue_recognition.field_performance_obligation_acceptance__id
@@ -657,6 +662,12 @@ msgid "Income Amount Policy"
 msgstr ""
 
 #. module: ssi_revenue_recognition
+#: model:ir.model.fields,field_description:ssi_revenue_recognition.field_revenue_recognition_type__income_usage_id
+#: model_terms:ir.ui.view,arch_db:ssi_revenue_recognition.revenue_recognition_type_view_search
+msgid "Income Usage"
+msgstr ""
+
+#. module: ssi_revenue_recognition
 #: model:ir.model.fields.selection,name:ssi_revenue_recognition.selection__account_analytic_account__progress_completion_method__input
 #: model:ir.model.fields.selection,name:ssi_revenue_recognition.selection__performance_obligation__progress_completion_method__input
 msgid "Input"
@@ -678,6 +689,7 @@ msgstr ""
 #. module: ssi_revenue_recognition
 #: model:ir.model.fields,field_description:ssi_revenue_recognition.field_revenue_recognition__journal_id
 #: model:ir.model.fields,field_description:ssi_revenue_recognition.field_revenue_recognition_type__journal_id
+#: model_terms:ir.ui.view,arch_db:ssi_revenue_recognition.revenue_recognition_type_view_search
 #: model_terms:ir.ui.view,arch_db:ssi_revenue_recognition.revenue_recognition_view_search
 msgid "Journal"
 msgstr ""
@@ -1348,8 +1360,8 @@ msgid "Unearned Income Account"
 msgstr ""
 
 #. module: ssi_revenue_recognition
-#: model:ir.model.fields,field_description:ssi_revenue_recognition.field_revenue_recognition_type__income_usage_id
 #: model:ir.model.fields,field_description:ssi_revenue_recognition.field_revenue_recognition_type__unearned_income_usage_id
+#: model_terms:ir.ui.view,arch_db:ssi_revenue_recognition.revenue_recognition_type_view_search
 msgid "Unearned Income Usage"
 msgstr ""
 
