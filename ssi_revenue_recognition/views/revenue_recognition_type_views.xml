@@ -12,7 +12,32 @@
         />
     <field name="mode">primary</field>
     <field name="arch" type="xml">
-        <data />
+        <data>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="journal_id" />
+                <field name="unearned_income_usage_id" />
+                <field name="income_usage_id" />
+            </xpath>
+            <xpath expr="//group[@name='dom_active']" position="after">
+                <group expand="0" string="Group By">
+                    <filter
+                            name="grp_journal"
+                            string="Journal"
+                            context="{'group_by':'journal_id'}"
+                        />
+                    <filter
+                            name="grp_unearned_income_usage"
+                            string="Unearned Income Usage"
+                            context="{'group_by':'unearned_income_usage_id'}"
+                        />
+                    <filter
+                            name="grp_income_usage"
+                            string="Income Usage"
+                            context="{'group_by':'income_usage_id'}"
+                        />
+                </group>
+            </xpath>
+        </data>
     </field>
 </record>
 
