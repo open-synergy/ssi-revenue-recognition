@@ -1300,6 +1300,7 @@ msgid "Title"
 msgstr ""
 
 #. module: ssi_revenue_recognition
+#: model_terms:ir.ui.view,arch_db:ssi_revenue_recognition.account_analytic_account_view_form
 #: model_terms:ir.ui.view,arch_db:ssi_revenue_recognition.performance_obligation_view_tree
 msgid "Total"
 msgstr ""
