@@ -1,0 +1,79 @@
+options:
+  auto_refresh: true
+
+scenarios:
+  - name: "PoB Cost/Revenue count aggregates each PoB's own account"
+    steps:
+      - step: "Create source analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa"
+        values:
+          name: "Test Source AA - PoB Cost Revenue"
+
+      - step: "Create PoB's own analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "pob_aa"
+        values:
+          name: "Test PoB AA - PoB Cost Revenue"
+
+      - step: "Create PoB linking the source AA to its own AA"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob"
+        values:
+          title: "Test PoB - Cost Revenue"
+          source_analytic_account_id: "REC: source_aa.id"
+          analytic_account_id: "REC: pob_aa.id"
+
+      - step: "Source AA has no PoB cost/revenue before any transaction"
+        action: "assert"
+        target: "source_aa"
+        asserts:
+          pob_cost_revenue_count:
+            type: "value"
+            expected: 0
+
+      - step: "Post first analytic line to the PoB's own account"
+        action: "create"
+        model: "account.analytic.line"
+        save_as: "line_1"
+        values:
+          name: "Test line 1"
+          account_id: "REC: pob_aa.id"
+          amount: 1000.0
+
+      - step: "Post second analytic line to the PoB's own account"
+        action: "create"
+        model: "account.analytic.line"
+        save_as: "line_2"
+        values:
+          name: "Test line 2"
+          account_id: "REC: pob_aa.id"
+          amount: -500.0
+
+      - step: "Source AA now aggregates both lines via the PoB"
+        action: "assert"
+        target: "source_aa"
+        asserts:
+          pob_cost_revenue_count:
+            type: "value"
+            expected: 2
+
+      - step: "Post a line directly on the source AA, not via any PoB"
+        action: "create"
+        model: "account.analytic.line"
+        save_as: "line_direct"
+        values:
+          name: "Direct line on source AA"
+          account_id: "REC: source_aa.id"
+          amount: 999.0
+
+      - step: "Count is unchanged by lines posted directly on the source AA"
+        action: "assert"
+        target: "source_aa"
+        asserts:
+          pob_cost_revenue_count:
+            type: "value"
+            expected: 2

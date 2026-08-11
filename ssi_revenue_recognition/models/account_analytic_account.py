@@ -49,6 +49,10 @@ class AccountAnalyticAccount(models.Model):
         compute="_compute_amount_pob",
         store=True,
     )
+    pob_cost_revenue_count = fields.Integer(
+        string="# PoB Cost/Revenue",
+        compute="_compute_pob_cost_revenue_count",
+    )
 
     @api.depends("pob_ids", "pob_ids.price_subtotal", "pob_planned_amount")
     def _compute_amount_pob(self):
@@ -56,3 +60,37 @@ class AccountAnalyticAccount(models.Model):
             total = sum(p.price_subtotal for p in record.pob_ids)
             record.amount_total_pob = total
             record.amount_diff_pob = record.pob_planned_amount - total
+
+    @api.depends("pob_ids.analytic_account_id")
+    def _compute_pob_cost_revenue_count(self):
+        """Count analytic lines posted to this AA's PoBs' own accounts.
+
+        Each PoB gets its own dedicated analytic account once opened
+        (see performance_obligation._10_create_analytic_account),
+        separate from this source analytic account, so PoB revenue
+        recognition entries never land here directly. This aggregates
+        them for the PoB Cost/Revenue smart button.
+        """
+        AAL = self.env["account.analytic.line"]
+        for record in self:
+            pob_aa_ids = record.pob_ids.mapped("analytic_account_id").ids
+            record.pob_cost_revenue_count = AAL.search_count(
+                [("account_id", "in", pob_aa_ids)]
+            )
+
+    def action_open_pob_cost_revenue(self):
+        """Open analytic lines across all PoBs' own analytic accounts.
+
+        Complements the core 'Cost/Revenue' button, which only shows
+        lines posted directly to this source analytic account.
+        """
+        self.ensure_one()
+        return {
+            "name": "PoB Cost/Revenue",
+            "type": "ir.actions.act_window",
+            "res_model": "account.analytic.line",
+            "view_mode": "tree,form,graph,pivot",
+            "domain": [
+                ("account_id", "in", self.pob_ids.mapped("analytic_account_id").ids)
+            ],
+        }
