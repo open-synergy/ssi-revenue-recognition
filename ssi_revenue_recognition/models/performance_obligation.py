@@ -8,6 +8,15 @@ from odoo.addons.ssi_decorator import ssi_decorator
 
 
 class PerformanceObligation(models.Model):
+    """
+    Represents one Performance Obligation (PoB) of a contract under
+    PSAK 115 / IFRS 15: a distinct promised good or service whose revenue
+    is recognised separately from the rest of the contract.
+    Each PoB owns its own analytic account, created when the document is
+    opened and placed below the contract's source analytic account, so
+    cost and revenue stay traceable per obligation.
+    """
+
     _name = "performance_obligation"
     _inherit = [
         "mixin.transaction_cancel",
@@ -362,6 +371,33 @@ class PerformanceObligation(models.Model):
         self.ensure_one()
         return self.source_analytic_account_id.group_id.id or False
 
+    def _get_analytic_parent_id(self):
+        """Resolve the parent of the analytic account owned by this PoB.
+
+        ``source_analytic_account_id`` -- the contract's own analytic
+        account -- is the single source of truth for that parent: every
+        analytic account a PoB owns sits directly below it in the
+        ``account.analytic.account`` hierarchy, so ``complete_name`` and
+        hierarchy-based analytic reports group each PoB under its
+        contract instead of showing it as another root account.
+
+        Returns ``False`` when no source account is set, and also when
+        the source account *is* this PoB's own analytic account: OCA
+        ``account_analytic_parent`` raises ``UserError`` on recursive
+        hierarchies, so a record must never become its own parent.
+
+        Extension point: override to place the PoB analytic account
+        somewhere else in the hierarchy.
+
+        :return: id of the parent ``account.analytic.account``, or
+            ``False`` when the account has to stay a root
+        """
+        self.ensure_one()
+        source = self.source_analytic_account_id
+        if not source or source == self.analytic_account_id:
+            return False
+        return source.id
+
     @ssi_decorator.post_open_action()
     def _10_create_analytic_account(self):
         self.ensure_one()
@@ -381,23 +417,47 @@ class PerformanceObligation(models.Model):
         self.analytic_account_id.write(self._prepare_update_analytic_account())
 
     def _prepare_update_analytic_account(self):
+        """Build the values resyncing the analytic account of this PoB.
+
+        Called by ``_update_analytic_account`` when the PoB already owns
+        an analytic account.  Every key is overwritten unconditionally --
+        ``parent_id`` included, since its only source of truth is
+        ``source_analytic_account_id`` -- so moving the PoB to another
+        contract moves its analytic account in the hierarchy as well.
+
+        Extension point: override to resync additional fields.
+
+        :return: dict of ``account.analytic.account`` values
+        """
         self.ensure_one()
         return {
             "name": self.title,
             "code": self.name,
             "partner_id": self.partner_id.id,
             "group_id": self._get_analytic_group_id(),
+            "parent_id": self._get_analytic_parent_id(),
             "date_start": self.date_start,
             "date_end": self.date_end,
         }
 
     def _prepare_analytic_account(self):
+        """Build the values of the analytic account owned by this PoB.
+
+        Called by ``_10_create_analytic_account`` when the PoB does not
+        own an analytic account yet.  ``parent_id`` puts the new account
+        directly below ``source_analytic_account_id``.
+
+        Extension point: override to add fields to the new account.
+
+        :return: dict of ``account.analytic.account`` values
+        """
         self.ensure_one()
         return {
             "name": self.title,
             "code": self.name,
             "partner_id": self.partner_id.id,
             "group_id": self._get_analytic_group_id(),
+            "parent_id": self._get_analytic_parent_id(),
             "date_start": self.date_start,
             "date_end": self.date_end,
         }
