@@ -535,6 +535,11 @@ msgid "Next Approvals"
 msgstr ""
 
 #. module: ssi_revenue_recognition_full
+#: model:revenue_recognition_full_type,name:ssi_revenue_recognition_full.revenue_recognition_full_type_demo1
+msgid "Normal - (test)"
+msgstr ""
+
+#. module: ssi_revenue_recognition_full
 #: model:ir.model.fields,field_description:ssi_revenue_recognition_full.field_revenue_recognition_full__note
 #: model:ir.model.fields,field_description:ssi_revenue_recognition_full.field_revenue_recognition_full_type__note
 msgid "Note"
