@@ -6,6 +6,16 @@ from odoo import fields, models
 
 
 class RevenueRecognition(models.Model):
+    """
+    Adds single operating unit support to Revenue Recognition.
+
+    ``operating_unit_id`` is a stored ``related`` field that mirrors
+    ``performance_obligation_id.operating_unit_id``, keeping the
+    performance obligation, its acceptance, and this revenue
+    recognition record on the same operating unit instead of falling
+    back to the acting user's default operating unit.
+    """
+
     _name = "revenue_recognition"
     _inherit = [
         "revenue_recognition",
