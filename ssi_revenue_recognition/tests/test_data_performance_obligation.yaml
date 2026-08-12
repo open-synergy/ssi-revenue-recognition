@@ -1,0 +1,208 @@
+options:
+  auto_refresh: true
+
+scenarios:
+  - name: "New PoB analytic account is created below the source account"
+    steps:
+      - step: "Create analytic group of the source account"
+        action: "create"
+        model: "account.analytic.group"
+        save_as: "group_1"
+        values:
+          name: "Test AA Group - PoB Parent 1"
+
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_1"
+        values:
+          name: "Test Source AA - PoB Parent 1"
+          group_id: "REC: group_1.id"
+
+      - step: "Create draft PoB pointing at the source analytic account"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_1"
+        values:
+          title: "Test PoB - Parent 1"
+          source_analytic_account_id: "REC: source_aa_1.id"
+
+      - step: "PoB owns no analytic account yet"
+        action: "assert"
+        target: "pob_1"
+        asserts:
+          analytic_account_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Create the analytic account owned by the PoB"
+        action: "call"
+        target: "pob_1"
+        method: "_10_create_analytic_account"
+
+      - step: "New analytic account is a child of the source account"
+        action: "assert"
+        target: "pob_1"
+        asserts:
+          analytic_account_id:
+            type: "value"
+            operator: "is_truthy"
+          analytic_account_id.parent_id:
+            type: "m2o"
+            expected: "REC: source_aa_1"
+          analytic_account_id.group_id:
+            type: "m2o"
+            expected: "REC: group_1"
+          analytic_account_id.name:
+            type: "value"
+            expected: "Test PoB - Parent 1"
+
+  - name: "Existing PoB analytic account is reparented on rerun"
+    steps:
+      - step: "Create analytic group of the source account"
+        action: "create"
+        model: "account.analytic.group"
+        save_as: "group_2"
+        values:
+          name: "Test AA Group - PoB Parent 2"
+
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_2"
+        values:
+          name: "Test Source AA - PoB Parent 2"
+          group_id: "REC: group_2.id"
+
+      - step: "Create a root analytic account owned by the PoB"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "pob_aa_2"
+        values:
+          name: "Test PoB AA - PoB Parent 2"
+
+      - step: "Create draft PoB already owning that analytic account"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_2"
+        values:
+          title: "Test PoB - Parent 2"
+          source_analytic_account_id: "REC: source_aa_2.id"
+          analytic_account_id: "REC: pob_aa_2.id"
+
+      - step: "Analytic account of the PoB is still a root account"
+        action: "assert"
+        target: "pob_aa_2"
+        asserts:
+          parent_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Rerun the analytic account hook on the PoB"
+        action: "call"
+        target: "pob_2"
+        method: "_10_create_analytic_account"
+
+      - step: "Existing account is kept and reparented, not replaced"
+        action: "assert"
+        target: "pob_2"
+        asserts:
+          analytic_account_id:
+            type: "m2o"
+            expected: "REC: pob_aa_2"
+          analytic_account_id.parent_id:
+            type: "m2o"
+            expected: "REC: source_aa_2"
+          analytic_account_id.group_id:
+            type: "m2o"
+            expected: "REC: group_2"
+
+  - name: "Moving the source account moves the analytic parent along"
+    steps:
+      - step: "Create the first source analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_3a"
+        values:
+          name: "Test Source AA - PoB Parent 3A"
+
+      - step: "Create the second source analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_3b"
+        values:
+          name: "Test Source AA - PoB Parent 3B"
+
+      - step: "Create draft PoB on the first source account"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_3"
+        values:
+          title: "Test PoB - Parent 3"
+          source_analytic_account_id: "REC: source_aa_3a.id"
+
+      - step: "Create the analytic account owned by the PoB"
+        action: "call"
+        target: "pob_3"
+        method: "_10_create_analytic_account"
+
+      - step: "Parent is the first source account"
+        action: "assert"
+        target: "pob_3"
+        asserts:
+          analytic_account_id.parent_id:
+            type: "m2o"
+            expected: "REC: source_aa_3a"
+
+      - step: "Move the PoB to the second source account"
+        action: "write"
+        target: "pob_3"
+        values:
+          source_analytic_account_id: "REC: source_aa_3b.id"
+
+      - step: "Rerun the analytic account hook on the PoB"
+        action: "call"
+        target: "pob_3"
+        method: "_10_create_analytic_account"
+
+      - step: "Parent follows the new source account unconditionally"
+        action: "assert"
+        target: "pob_3"
+        asserts:
+          analytic_account_id.parent_id:
+            type: "m2o"
+            expected: "REC: source_aa_3b"
+
+  - name: "PoB whose analytic account is the source keeps no parent"
+    steps:
+      - step: "Create the analytic account shared by PoB and contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "shared_aa_4"
+        values:
+          name: "Test Shared AA - PoB Parent 4"
+
+      - step: "Create draft PoB owning its own source account"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_4"
+        values:
+          title: "Test PoB - Parent 4"
+          source_analytic_account_id: "REC: shared_aa_4.id"
+          analytic_account_id: "REC: shared_aa_4.id"
+
+      - step: "Rerun the hook: the self-parent guard must not raise"
+        action: "call"
+        target: "pob_4"
+        method: "_10_create_analytic_account"
+
+      - step: "Account is unchanged and stays a root account"
+        action: "assert"
+        target: "pob_4"
+        asserts:
+          analytic_account_id:
+            type: "m2o"
+            expected: "REC: shared_aa_4"
+          analytic_account_id.parent_id:
+            type: "value"
+            operator: "is_falsy"
