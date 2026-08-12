@@ -73,6 +73,12 @@
                             <field name="wip_account_id" />
                             <field name="expense_account_id" />
                         </tree>
+                        <form>
+                            <group name="account_group_1">
+                                <field name="wip_account_id" />
+                                <field name="expense_account_id" />
+                            </group>
+                        </form>
                     </field>
                 </page>
             </xpath>

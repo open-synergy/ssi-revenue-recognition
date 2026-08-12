@@ -7,6 +7,12 @@ from odoo import api, fields, models
 
 
 class AccountAnalyticAccount(models.Model):
+    """
+    Adds PSAK 115 / IFRS 15 revenue recognition attributes to the
+    analytic account acting as a contract, and aggregates the totals
+    of the Performance Obligations (PoB) generated from it.
+    """
+
     _name = "account.analytic.account"
     _inherit = ["account.analytic.account"]
 
@@ -56,6 +62,13 @@ class AccountAnalyticAccount(models.Model):
 
     @api.depends("pob_ids", "pob_ids.price_subtotal", "pob_planned_amount")
     def _compute_amount_pob(self):
+        """Aggregate PoB amounts against the planned contract amount.
+
+        ``amount_total_pob`` sums ``price_subtotal`` of every child
+        ``performance_obligation``; ``amount_diff_pob`` is the gap
+        between ``pob_planned_amount`` and that sum, so a positive
+        value means the contract still has unallocated amount left.
+        """
         for record in self:
             total = sum(p.price_subtotal for p in record.pob_ids)
             record.amount_total_pob = total

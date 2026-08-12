@@ -1,0 +1,141 @@
+options:
+  auto_refresh: true
+
+scenarios:
+  - name: "Two inline account_ids lines are saved with their own mapping"
+    steps:
+      - step: "Create the type's journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal_rrt1"
+        values:
+          name: "Test Journal - RRT1"
+          code: "TRRT1"
+          type: "general"
+
+      - step: "Create the unearned income usage"
+        action: "create"
+        model: "product.usage_type"
+        save_as: "usage_unearned_rrt1"
+        values:
+          name: "Test Unearned Income Usage - RRT1"
+          code: "TURRT1"
+
+      - step: "Create the income usage"
+        action: "create"
+        model: "product.usage_type"
+        save_as: "usage_income_rrt1"
+        values:
+          name: "Test Income Usage - RRT1"
+          code: "TIRRT1"
+
+      - step: "Create WIP account for line 1"
+        action: "create"
+        model: "account.account"
+        save_as: "wip_account_1"
+        values:
+          name: "Test WIP Account 1 - RRT1"
+          code: "TWA1RRT1"
+          user_type_id: "REF: account.data_account_type_current_assets"
+          reconcile: true
+
+      - step: "Create expense account for line 1"
+        action: "create"
+        model: "account.account"
+        save_as: "expense_account_1"
+        values:
+          name: "Test Expense Account 1 - RRT1"
+          code: "TEA1RRT1"
+          user_type_id: "REF: account.data_account_type_direct_costs"
+
+      - step: "Create WIP account for line 2"
+        action: "create"
+        model: "account.account"
+        save_as: "wip_account_2"
+        values:
+          name: "Test WIP Account 2 - RRT1"
+          code: "TWA2RRT1"
+          user_type_id: "REF: account.data_account_type_current_assets"
+          reconcile: true
+
+      - step: "Create expense account for line 2"
+        action: "create"
+        model: "account.account"
+        save_as: "expense_account_2"
+        values:
+          name: "Test Expense Account 2 - RRT1"
+          code: "TEA2RRT1"
+          user_type_id: "REF: account.data_account_type_direct_costs"
+
+      - step: "Create the type with two inline account_ids lines"
+        action: "create"
+        model: "revenue_recognition_type"
+        save_as: "rrt1"
+        values:
+          name: "Test Revenue Recognition Type - RRT1"
+          code: "TRRT001"
+          journal_id: "REC: journal_rrt1.id"
+          unearned_income_usage_id: "REC: usage_unearned_rrt1.id"
+          income_usage_id: "REC: usage_income_rrt1.id"
+          account_ids:
+            - - 0
+              - 0
+              - wip_account_id: "REC: wip_account_1.id"
+                expense_account_id: "REC: expense_account_1.id"
+            - - 0
+              - 0
+              - wip_account_id: "REC: wip_account_2.id"
+                expense_account_id: "REC: expense_account_2.id"
+
+      - step: "Both inline lines are saved"
+        action: "assert"
+        target: "rrt1"
+        asserts:
+          account_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 2
+
+      - step: "Find the saved line for WIP account 1"
+        action: "search"
+        model: "revenue_recognition_type_account"
+        domain:
+          [
+            ["type_id", "=", "REC: rrt1.id"],
+            ["wip_account_id", "=", "REC: wip_account_1.id"],
+          ]
+        save_as: "saved_line_1"
+        expect_count: 1
+
+      - step: "Line 1 keeps its own WIP/expense account mapping"
+        action: "assert"
+        target: "saved_line_1"
+        asserts:
+          wip_account_id:
+            type: "m2o"
+            expected: "REC: wip_account_1"
+          expense_account_id:
+            type: "m2o"
+            expected: "REC: expense_account_1"
+
+      - step: "Find the saved line for WIP account 2"
+        action: "search"
+        model: "revenue_recognition_type_account"
+        domain:
+          [
+            ["type_id", "=", "REC: rrt1.id"],
+            ["wip_account_id", "=", "REC: wip_account_2.id"],
+          ]
+        save_as: "saved_line_2"
+        expect_count: 1
+
+      - step: "Line 2 keeps its own WIP/expense account mapping"
+        action: "assert"
+        target: "saved_line_2"
+        asserts:
+          wip_account_id:
+            type: "m2o"
+            expected: "REC: wip_account_2"
+          expense_account_id:
+            type: "m2o"
+            expected: "REC: expense_account_2"

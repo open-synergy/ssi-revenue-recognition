@@ -7,6 +7,14 @@ from odoo.addons.ssi_decorator import ssi_decorator
 
 
 class PerformanceObligationAcceptance(models.Model):
+    """
+    Records a customer's acceptance of fulfilled quantity/progress on
+    a Performance Obligation (PoB) under PSAK 115 / IFRS 15.
+    Each acceptance contributes fulfilled quantity toward its PoB and,
+    once ``done``, becomes eligible to be picked up by a
+    ``revenue_recognition`` document.
+    """
+
     _name = "performance_obligation_acceptance"
     _inherit = [
         "mixin.date_duration",
@@ -180,6 +188,14 @@ class PerformanceObligationAcceptance(models.Model):
         "performance_obligation_id.acceptance_ids.qty_fulfilled",
     )
     def _compute_previous_performance_obligation_acceptance_ids(self):
+        """Find prior ``done`` acceptances of the same PoB.
+
+        Searches other ``performance_obligation_acceptance`` records
+        sharing the same ``performance_obligation_id``, already
+        ``done``, and dated strictly before this record's ``date``.
+        Feeds ``_compute_qty_accumulated`` so accumulated/excess
+        quantity can be derived without double-counting.
+        """
         PoA = self.env["performance_obligation_acceptance"]
         for record in self:
             criteria = [
@@ -195,6 +211,16 @@ class PerformanceObligationAcceptance(models.Model):
         "previous_performance_obligation_acceptance_ids.qty_fulfilled",
     )
     def _compute_qty_accumulated(self):
+        """Split accepted quantity against the PoB's total quantity.
+
+        Adds this acceptance's ``qty_fulfilled`` on top of every prior
+        ``done`` acceptance to get ``qty_fulfilled_accumulated``, then
+        compares it with the PoB's ``uom_quantity`` to derive
+        ``qty_diff_accumulated``. When the accumulated total exceeds
+        the PoB quantity, the overflow is reported as ``qty_excess``
+        and ``qty_accepted`` is capped so the PoB is never accepted
+        beyond what was promised.
+        """
         for record in self:
             qty_total = record.performance_obligation_id.uom_quantity
             qty_fulfilled = qty_accepted = qty_excess = 0.0
@@ -218,6 +244,13 @@ class PerformanceObligationAcceptance(models.Model):
         "manual_fulfillment_ids.quantity",
     )
     def _compute_qty_manual_fulfillment(self):
+        """Sum manually entered fulfillment quantity.
+
+        Adds ``quantity`` of every line in ``manual_fulfillment_ids``,
+        then re-triggers ``_compute_qty_fulfilled`` so ``qty_fulfilled``
+        stays consistent when the PoB's ``fulfillment_field_id`` points
+        to this field.
+        """
         for record in self:
             result = 0.0
             for manual in record.manual_fulfillment_ids:
@@ -226,6 +259,14 @@ class PerformanceObligationAcceptance(models.Model):
             record._compute_qty_fulfilled()
 
     def _compute_qty_fulfilled(self):
+        """Read the fulfilled quantity from the PoB's configured field.
+
+        The PoB (``performance_obligation_id``) selects which float
+        field on this model represents fulfillment via
+        ``fulfillment_field_id`` (mis. ``qty_manual_fulfillment``);
+        this copies that field's value into ``qty_fulfilled``. Stays
+        zero when no PoB or no fulfillment field is set.
+        """
         for record in self:
             result = 0.0
             if (
@@ -257,6 +298,12 @@ class PerformanceObligationAcceptance(models.Model):
         "performance_obligation_id",
     )
     def onchange_policy_template_id(self):
+        """Recompute the default approval policy template.
+
+        Triggered when ``performance_obligation_id`` changes so the
+        policy template offered to the user always matches the
+        current record state.
+        """
         template_id = self._get_template_policy()
         self.policy_template_id = template_id
 
