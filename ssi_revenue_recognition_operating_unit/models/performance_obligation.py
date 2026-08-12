@@ -6,6 +6,19 @@ from odoo import fields, models
 
 
 class PerformanceObligation(models.Model):
+    """
+    Adds single operating unit support to Performance Obligation.
+
+    Unlike ``PerformanceObligationAcceptance`` and
+    ``RevenueRecognition`` below, ``operating_unit_id`` here is not a
+    ``related`` field and does not fall back to
+    ``mixin.single_operating_unit``'s default (the acting user's
+    operating unit). It is stamped at creation time by the
+    ``ssi_service_revenue_recognition_operating_unit`` bridge, copied
+    from the source service contract, and stays a plain, editable
+    field afterwards.
+    """
+
     _name = "performance_obligation"
     _inherit = [
         "performance_obligation",

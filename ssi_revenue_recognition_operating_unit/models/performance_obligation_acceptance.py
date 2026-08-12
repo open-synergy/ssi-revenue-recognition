@@ -6,6 +6,17 @@ from odoo import fields, models
 
 
 class PerformanceObligationAcceptance(models.Model):
+    """
+    Adds single operating unit support to Performance Obligation
+    Acceptance.
+
+    ``operating_unit_id`` is a stored ``related`` field that mirrors
+    ``performance_obligation_id.operating_unit_id``, so an acceptance
+    always carries its performance obligation's operating unit
+    instead of falling back to the acting user's default operating
+    unit.
+    """
+
     _name = "performance_obligation_acceptance"
     _inherit = [
         "performance_obligation_acceptance",
