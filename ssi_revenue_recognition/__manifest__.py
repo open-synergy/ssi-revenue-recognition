@@ -15,6 +15,7 @@
         "ssi_master_data_mixin",
         "ssi_partner_mixin",
         "ssi_analytic_budget",
+        "ssi_product_usage_account_type",
         "base_automation",
     ],
     "data": [
