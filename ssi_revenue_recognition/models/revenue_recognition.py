@@ -7,6 +7,15 @@ from odoo.addons.ssi_decorator import ssi_decorator
 
 
 class RevenueRecognition(models.Model):
+    """
+    Records one act of recognising revenue for a Performance
+    Obligation (PoB) under PSAK 115 / IFRS 15, over a specific
+    period (``date_start``/``date_end``). On ``done`` it posts the
+    accounting entry moving amounts out of unearned income into
+    income, WIP, and expense accounts based on the accepted quantity
+    and configured account mappings.
+    """
+
     _name = "revenue_recognition"
     _inherit = [
         "mixin.transaction_cancel",
@@ -295,6 +304,14 @@ class RevenueRecognition(models.Model):
         "performance_obligation_acceptance_ids.qty_accepted",
     )
     def _compute_quantity_accepted(self):
+        """Aggregate accepted quantity from linked ``done`` acceptances.
+
+        Sums ``qty_accepted`` of every
+        ``performance_obligation_acceptance`` in
+        ``performance_obligation_acceptance_ids`` that is ``done``,
+        then derives ``quantity_diff``, ``percentage_accepted``, and
+        ``amount_accepted`` against the PoB's ``price_subtotal``.
+        """
         for record in self:
             qty_accepted = qty_diff = percentage = amount_accepted = 0.0
             for acceptance in record.performance_obligation_acceptance_ids.filtered(
@@ -321,6 +338,14 @@ class RevenueRecognition(models.Model):
         "performance_obligation_id.price_subtotal",
     )
     def _compute_budget(self):
+        """Roll up budget/realized amounts from ``account_ids`` lines.
+
+        Sums ``budget`` and ``balance`` of every
+        ``revenue_recognition_account`` line, derives
+        ``percent_realized``, and computes ``theoritical_accepted`` as
+        the realized share of the PoB's ``price_subtotal``. Stays at
+        zero when there is no budget to divide by.
+        """
         for record in self:
             budgeted = realized = percentage = theoritical_accepted = 0.0
             for account in record.account_ids:
@@ -347,6 +372,11 @@ class RevenueRecognition(models.Model):
         "type_id",
     )
     def onchange_policy_template_id(self):
+        """Recompute the default approval policy template.
+
+        Triggered when ``type_id`` changes so the policy template
+        offered to the user always matches the current record state.
+        """
         template_id = self._get_template_policy()
         self.policy_template_id = template_id
 
@@ -358,6 +388,13 @@ class RevenueRecognition(models.Model):
 
     @api.onchange("type_id")
     def onchange_account_ids(self):
+        """Rebuild ``account_ids`` from the selected type's mappings.
+
+        Clears the current ``account_ids`` lines and recreates one
+        line per entry in ``type_id.account_ids``, copying
+        ``wip_account_id``/``expense_account_id`` so the recognition
+        starts with the type's default account mapping.
+        """
         self.update({"account_ids": [(5, 0, 0)]})
         cost = []
         if self.type_id:
@@ -378,6 +415,13 @@ class RevenueRecognition(models.Model):
         "type_id",
     )
     def onchange_unearned_income_account_id(self):
+        """Resolve the unearned income account from the product/type.
+
+        Resets ``unearned_income_account_id``, then, when ``type_id``
+        is set, looks it up via the product's fiscal position using
+        ``type_id.unearned_income_usage_id.code`` as the account
+        usage.
+        """
         self.unearned_income_account_id = False
         if self.type_id:
             self.unearned_income_account_id = self.product_id._get_product_account(
@@ -388,6 +432,12 @@ class RevenueRecognition(models.Model):
         "type_id",
     )
     def onchange_income_account_id(self):
+        """Resolve the income account from the product/type.
+
+        Resets ``income_account_id``, then, when ``type_id`` is set,
+        looks it up via the product's fiscal position using
+        ``type_id.income_usage_id.code`` as the account usage.
+        """
         self.income_account_id = False
         if self.type_id:
             self.income_account_id = self.product_id._get_product_account(
@@ -395,11 +445,24 @@ class RevenueRecognition(models.Model):
             )
 
     def action_populate(self):
+        """Pull in eligible acceptances and WIP move lines to date.
+
+        User-triggered action: for every record, links the unclaimed
+        ``done`` acceptances of its PoB up to ``date`` and refreshes
+        the WIP move lines within ``date_start``/``date_end``.
+        """
         for record in self:
             record._populate_pob_acceptances()
             record._populate_wip_move_line()
 
     def _populate_pob_acceptances(self):
+        """Link this record's unclaimed acceptances of its PoB.
+
+        Releases every acceptance currently linked to this record,
+        then claims (sets ``revenue_recognition_id``) every acceptance
+        matching ``_prepare_pob_acceptance_domain`` so re-running
+        ``action_populate`` does not duplicate the claim.
+        """
         self.ensure_one()
         self.performance_obligation_acceptance_ids.write(
             {
@@ -415,6 +478,17 @@ class RevenueRecognition(models.Model):
         )
 
     def _prepare_pob_acceptance_domain(self):
+        """Build the search domain for unclaimed acceptances of the PoB.
+
+        Matches ``done`` acceptances of ``performance_obligation_id``
+        dated on or before ``date`` that are not yet linked to any
+        ``revenue_recognition`` record.
+
+        Extension point: override to narrow/widen the eligibility
+        criteria.
+
+        :return: an Odoo domain list
+        """
         self.ensure_one()
 
         return [
@@ -425,6 +499,13 @@ class RevenueRecognition(models.Model):
         ]
 
     def _populate_wip_move_line(self):
+        """Refresh ``move_line_ids`` with WIP entries within the period.
+
+        Replaces the current ``move_line_ids`` with every posted
+        ``account.move.line`` matching
+        ``_prepare_move_line_domain``, then recomputes
+        ``account_ids`` balances via ``_compute_balance``.
+        """
         self.ensure_one()
 
         MoveLine = self.env["account.move.line"]
@@ -433,6 +514,18 @@ class RevenueRecognition(models.Model):
         self._compute_balance()
 
     def _prepare_move_line_domain(self):
+        """Build the search domain for WIP move lines of the period.
+
+        Matches posted ``account.move.line`` records posted on the
+        PoB's own analytic account, using one of the type's
+        ``wip_account_ids``, dated within
+        ``date_start``/``date_end``.
+
+        Extension point: override to change the WIP account/date
+        criteria.
+
+        :return: an Odoo domain list
+        """
         self.ensure_one()
         pob = self.performance_obligation_id
         return [
@@ -444,6 +537,15 @@ class RevenueRecognition(models.Model):
         ]
 
     def _compute_balance(self):
+        """Refresh each ``account_ids`` line's debit/credit/budget.
+
+        For every ``revenue_recognition_account`` line, sums the
+        debit/credit of the WIP move lines in ``move_line_ids``
+        posted to that line's ``wip_account_id`` within
+        ``date_start``/``date_end``, and looks up the budgeted amount
+        from ``analytic_budget.cost_summary_account`` for that line's
+        ``expense_account_id``. Writes both onto the line.
+        """
         self.ensure_one()
         MoveLine = self.env["account.move.line"]
         BudgetCostSummary = self.env["analytic_budget.cost_summary_account"]
@@ -480,6 +582,13 @@ class RevenueRecognition(models.Model):
 
     @ssi_decorator.post_done_action()
     def _create_accounting_entry(self):
+        """Post the full accounting entry for this revenue recognition.
+
+        Runs after ``action_done``. Creates the ``account.move`` and
+        its lines (unearned income, income, expense, WIP), then posts
+        the move. Order matters: the move must exist before any line
+        can be created against it.
+        """
         self._create_move()
         self._create_unearned_income_ml()
         self._create_income_ml()
@@ -488,6 +597,12 @@ class RevenueRecognition(models.Model):
         self.move_id.action_post()
 
     def _create_move(self):
+        """Create the (unposted) ``account.move`` and link it.
+
+        Uses ``check_move_validity=False`` because the move is built
+        line by line across several methods and is only balanced/
+        validated once every line has been created.
+        """
         self.ensure_one()
         Move = self.env["account.move"]
         move = Move.with_context(check_move_validity=False).create(
@@ -500,10 +615,18 @@ class RevenueRecognition(models.Model):
         )
 
     def _create_income_ml(self):
+        """Create the income move line from ``_prepare_income_ml``."""
         ML = self.env["account.move.line"]
         ML.with_context(check_move_validity=False).create(self._prepare_income_ml())
 
     def _prepare_income_ml(self):
+        """Build the credit move line values for the income account.
+
+        Credits ``income_account_id`` with the amount selected by
+        ``income_amount_policy`` (mis. ``amount_accepted``).
+
+        :return: dict of ``account.move.line`` values
+        """
         self.ensure_one()
         return self._prepare_ml(
             account=self.income_account_id,
@@ -512,12 +635,21 @@ class RevenueRecognition(models.Model):
         )
 
     def _create_unearned_income_ml(self):
+        """Create the unearned income line from ``_prepare_unearned_income_ml``."""
         ML = self.env["account.move.line"]
         ML.with_context(check_move_validity=False).create(
             self._prepare_unearned_income_ml()
         )
 
     def _prepare_unearned_income_ml(self):
+        """Build the debit move line values for the unearned income account.
+
+        Debits ``unearned_income_account_id`` with the same amount
+        credited to income, moving it out of unearned income as
+        revenue is recognised.
+
+        :return: dict of ``account.move.line`` values
+        """
         self.ensure_one()
         return self._prepare_ml(
             account=self.unearned_income_account_id,
@@ -526,16 +658,37 @@ class RevenueRecognition(models.Model):
         )
 
     def _create_expense_ml(self):
+        """Delegate expense line creation to each ``account_ids`` line.
+
+        Each ``revenue_recognition_account`` line knows its own
+        ``expense_account_id`` and amount policy.
+        """
         self.ensure_one()
         for expense in self.account_ids:
             expense._create_expense_ml()
 
     def _create_wip_ml(self):
+        """Delegate WIP line creation to each ``account_ids`` line.
+
+        Each ``revenue_recognition_account`` line knows its own
+        ``wip_account_id`` and amount policy.
+        """
         self.ensure_one()
         for expense in self.account_ids:
             expense._create_wip_ml()
 
     def _prepare_ml(self, account, debit, credit):
+        """Build the common ``account.move.line`` values for this move.
+
+        Shared by ``_prepare_income_ml``/``_prepare_unearned_income_ml``:
+        sets the account, this record's ``partner_id``, the PoB's own
+        analytic account, and the given debit/credit onto ``move_id``.
+
+        :param account: an ``account.account`` record
+        :param debit: debit amount
+        :param credit: credit amount
+        :return: dict of ``account.move.line`` values
+        """
         pob = self.performance_obligation_id
         return {
             "account_id": account.id,
@@ -547,6 +700,12 @@ class RevenueRecognition(models.Model):
         }
 
     def _prepare_account_move(self):
+        """Build the header values of the ``account.move`` to create.
+
+        Extension point: override to add fields to the move header.
+
+        :return: dict of ``account.move`` values
+        """
         return {
             "name": self.name,
             "date": self.date,
@@ -555,6 +714,12 @@ class RevenueRecognition(models.Model):
 
     @ssi_decorator.post_cancel_action()
     def _20_cancel_move(self):
+        """Unlink the posted accounting entry on cancel.
+
+        Runs after ``action_cancel``. Unposts ``move_id`` when it is
+        posted, then deletes it and clears the field, so a cancelled
+        recognition leaves no accounting trail behind.
+        """
         self.ensure_one()
 
         if not self.move_id:

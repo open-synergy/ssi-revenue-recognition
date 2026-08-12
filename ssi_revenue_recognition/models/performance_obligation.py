@@ -305,6 +305,13 @@ class PerformanceObligation(models.Model):
         "state",
     )
     def _compute_date_attribute(self):
+        """Derive the visibility/requirement of ``date_start``/``date_end``.
+
+        The dates are required and shown only when
+        ``revenue_recognition_timing`` is ``point_in_time``; once the
+        record leaves ``draft`` the dates become readonly regardless
+        of the timing.
+        """
         for record in self:
             required = invisible = readonly = False
             if record.revenue_recognition_timing == "point_in_time":
@@ -325,6 +332,15 @@ class PerformanceObligation(models.Model):
         "acceptance_ids.qty_fulfilled",
     )
     def _compute_quantity_accepted(self):
+        """Aggregate accepted quantity from ``done`` acceptances.
+
+        Sums ``qty_fulfilled`` of every acceptance in state ``done``,
+        then derives ``quantity_diff`` (remaining quantity),
+        ``percentage_accepted``, and ``amount_accepted`` (accepted
+        share of ``price_subtotal``). Falls back to zero percentage
+        and amount when ``quantity`` is zero, to avoid a division
+        error.
+        """
         for record in self:
             qty_accepted = qty_diff = percentage = amount_accepted = 0.0
             for acceptance in record.acceptance_ids.filtered(
@@ -359,7 +375,14 @@ class PerformanceObligation(models.Model):
 
     @api.onchange("product_id")
     def onchange_name(self):
-        pass
+        """No-op placeholder onchange for ``name`` on ``product_id`` change.
+
+        ``name`` is assigned from the ``open`` sequence (see
+        ``_create_sequence_state``), not derived from the product, so
+        there is nothing to reset here. Kept as an explicit hook so a
+        glue module can extend it without introducing a new
+        ``@api.onchange("product_id")`` registration.
+        """
 
     @api.onchange("product_id")
     def onchange_title(self):
@@ -368,6 +391,17 @@ class PerformanceObligation(models.Model):
             self.title = self.product_id.display_name
 
     def _get_analytic_group_id(self):
+        """Resolve the analytic group for the PoB's own analytic account.
+
+        Reuses the contract's ``group_id`` so the PoB analytic account
+        stays in the same analytic group as
+        ``source_analytic_account_id``.
+
+        Extension point: override to assign a different group.
+
+        :return: id of the ``account.analytic.group``, or ``False``
+            when the source account has no group
+        """
         self.ensure_one()
         return self.source_analytic_account_id.group_id.id or False
 
@@ -400,6 +434,14 @@ class PerformanceObligation(models.Model):
 
     @ssi_decorator.post_open_action()
     def _10_create_analytic_account(self):
+        """Create or resync the PoB's own analytic account on open.
+
+        Runs after ``action_open``. Creates a new
+        ``account.analytic.account`` below
+        ``source_analytic_account_id`` when the PoB does not have one
+        yet; otherwise resyncs the existing one so cost/revenue stay
+        traceable per obligation.
+        """
         self.ensure_one()
         if self.analytic_account_id:
             self._update_analytic_account()
@@ -413,6 +455,11 @@ class PerformanceObligation(models.Model):
             )
 
     def _update_analytic_account(self):
+        """Resync the PoB's own analytic account with current values.
+
+        Called by ``_10_create_analytic_account`` when the PoB already
+        owns an analytic account.
+        """
         self.ensure_one()
         self.analytic_account_id.write(self._prepare_update_analytic_account())
 

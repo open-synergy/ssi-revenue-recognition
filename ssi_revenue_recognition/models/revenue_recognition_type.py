@@ -6,6 +6,13 @@ from odoo import api, fields, models
 
 
 class RevenueRecognitionType(models.Model):
+    """
+    Master data configuring how a ``revenue_recognition`` document
+    posts its accounting entry: which journal to use, which product
+    usage codes resolve the unearned income/income accounts, and the
+    default WIP/expense account mappings offered to new documents.
+    """
+
     _name = "revenue_recognition_type"
     _inherit = ["mixin.master_data"]
     _description = "Revenue Recognition Type"
@@ -50,6 +57,13 @@ class RevenueRecognitionType(models.Model):
         "account_ids.expense_account_id",
     )
     def _compute_account(self):
+        """Collect distinct WIP/expense accounts from ``account_ids``.
+
+        ``wip_account_ids``/``expense_account_ids`` are the set of
+        accounts used across ``account_ids`` mapping lines, exposed
+        so a ``revenue_recognition`` document can restrict its WIP
+        move line search to this type's configured accounts.
+        """
         for record in self:
             wip_accounts = expense_accounts = self.env["account.account"]
             if record.account_ids:

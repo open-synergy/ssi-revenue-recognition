@@ -6,6 +6,13 @@ from odoo import fields, models
 
 
 class RevenueRecognitionTypeAccount(models.Model):
+    """
+    One default WIP/expense account mapping line of a
+    ``revenue_recognition_type``. Copied onto a new
+    ``revenue_recognition`` document's ``account_ids`` when the type
+    is selected (see ``revenue_recognition.onchange_account_ids``).
+    """
+
     _name = "revenue_recognition_type_account"
     _description = "Revenue Recognition Type Account Mapping"
 

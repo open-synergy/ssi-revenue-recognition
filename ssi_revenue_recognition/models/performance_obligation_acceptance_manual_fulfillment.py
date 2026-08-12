@@ -6,6 +6,13 @@ from odoo import fields, models
 
 
 class PerformanceObligationAcceptanceManualFulfillment(models.Model):
+    """
+    One manually entered fulfillment line of a Performance Obligation
+    Acceptance. Used when the fulfillment quantity of the parent
+    acceptance is captured line by line rather than derived
+    automatically.
+    """
+
     _name = "performance_obligation_acceptance_manual_fulfillment"
     _description = "Performance Obligation Acceptance Manual Fulfillment"
     _inherit = [

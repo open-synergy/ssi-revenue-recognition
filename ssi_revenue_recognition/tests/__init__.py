@@ -4,3 +4,5 @@
 
 from . import test_account_analytic_account
 from . import test_performance_obligation
+from . import test_revenue_recognition
+from . import test_revenue_recognition_type

@@ -28,6 +28,17 @@
                         <field name="price_subtotal" sum="Total" />
                         <field name="state" />
                     </tree>
+                    <form create="false" edit="false" delete="false">
+                        <group name="pob_group_1">
+                            <field name="name" />
+                            <field name="title" />
+                            <field name="product_id" />
+                            <field name="uom_quantity" />
+                            <field name="price_unit" />
+                            <field name="price_subtotal" />
+                            <field name="state" />
+                        </group>
+                    </form>
                 </field>
             </xpath>
         </data>
