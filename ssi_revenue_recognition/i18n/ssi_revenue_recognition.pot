@@ -657,6 +657,11 @@ msgid "If checked, some messages have a delivery error."
 msgstr ""
 
 #. module: ssi_revenue_recognition
+#: model:product.usage_type,name:ssi_revenue_recognition.demo_usage2
+msgid "Income - (test)"
+msgstr ""
+
+#. module: ssi_revenue_recognition
 #: model:ir.model.fields,field_description:ssi_revenue_recognition.field_revenue_recognition__income_account_id
 msgid "Income Account"
 msgstr ""
@@ -874,6 +879,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:ssi_revenue_recognition.field_performance_obligation_acceptance__next_approval_ids
 #: model:ir.model.fields,field_description:ssi_revenue_recognition.field_revenue_recognition__next_approval_ids
 msgid "Next Approvals"
+msgstr ""
+
+#. module: ssi_revenue_recognition
+#: model:revenue_recognition_type,name:ssi_revenue_recognition.revenue_recognition_type_demo1
+msgid "Normal - (test)"
 msgstr ""
 
 #. module: ssi_revenue_recognition
@@ -1358,6 +1368,11 @@ msgstr ""
 #: model:ir.model.fields,help:ssi_revenue_recognition.field_revenue_recognition__activity_exception_decoration
 #: model:ir.model.fields,help:ssi_revenue_recognition.field_revenue_recognition_type__activity_exception_decoration
 msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: ssi_revenue_recognition
+#: model:product.usage_type,name:ssi_revenue_recognition.demo_usage1
+msgid "Unearned Income - (test)"
 msgstr ""
 
 #. module: ssi_revenue_recognition
