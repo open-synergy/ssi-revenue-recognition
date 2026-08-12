@@ -5,6 +5,14 @@ from odoo import models
 
 
 class RevenueRecognition(models.Model):
+    """
+    Adds work log tracking to Revenue Recognition via
+    ``mixin.work_object``. Enables the ``hr.work_log`` tab on the
+    form (``_work_log_create_page``) so hours logged while performing
+    the recognition can be compared to ``work_estimation`` and rolled
+    up into the mixin's realization figures.
+    """
+
     _name = "revenue_recognition"
     _inherit = [
         "revenue_recognition",

@@ -5,6 +5,15 @@ from odoo import api, fields, models
 
 
 class PerformanceObligationAcceptance(models.Model):
+    """
+    Bridges Performance Obligation Acceptance to ``hr.work_log`` via
+    ``mixin.work_object``, and adds a curated selection layer on top
+    of it. ``allowed_work_log_ids`` computes which logs are eligible
+    to be picked, ``poa_work_log_ids`` holds the ones the user
+    actually selects, and ``qty_work_log`` sums their duration into
+    the quantity that feeds the acceptance's fulfilled quantity.
+    """
+
     _name = "performance_obligation_acceptance"
     _inherit = [
         "performance_obligation_acceptance",
@@ -38,6 +47,14 @@ class PerformanceObligationAcceptance(models.Model):
         "performance_obligation_id",
     )
     def _compute_allowed_work_log_ids(self):
+        """Compute the ``hr.work_log`` records eligible for selection.
+
+        Filters ``hr.work_log`` by the PoB's (``performance_obligation_id``)
+        ``analytic_account_id``, restricted to the acceptance's
+        ``date_start``/``date_end`` window and to logs in ``done``
+        state, then stores the matching ids on
+        ``allowed_work_log_ids``.
+        """
         for record in self:
             pob = record.performance_obligation_id
 
@@ -55,6 +72,16 @@ class PerformanceObligationAcceptance(models.Model):
         "poa_work_log_ids.amount",
     )
     def _compute_qty_work_log(self):
+        """Sum the selected work logs' duration into ``qty_work_log``.
+
+        Adds up the ``amount`` (``Duration``) field of every record
+        in ``poa_work_log_ids`` — the work logs actually picked for
+        this acceptance, out of ``allowed_work_log_ids`` — and stores
+        the total, in the same unit as ``hr.work_log.amount``, on
+        ``qty_work_log``. Also triggers recomputation of the
+        acceptance's fulfilled quantity via
+        ``_compute_qty_fulfilled``.
+        """
         for record in self:
             result = 0.0
             for work_log in record.poa_work_log_ids:
