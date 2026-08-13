@@ -1,0 +1,430 @@
+options:
+  auto_refresh: true
+
+scenarios:
+  - name: "Allowed work logs are the intersection of AA, date window, state"
+    steps:
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_1"
+        values:
+          name: "Test Source AA - POA WL Filter 1"
+
+      - step: "Create the PoB's own analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "pob_aa_1"
+        values:
+          name: "Test PoB AA - POA WL Filter 1"
+
+      - step: "Create an unrelated analytic account (another PoB's)"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "other_aa_1"
+        values:
+          name: "Test Other AA - POA WL Filter 1"
+
+      - step: "Create the PoB on its own analytic account"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_1"
+        values:
+          title: "Test PoB - POA WL Filter 1"
+          source_analytic_account_id: "REC: source_aa_1.id"
+          analytic_account_id: "REC: pob_aa_1.id"
+
+      - step: "Create the customer partner"
+        action: "create"
+        model: "res.partner"
+        save_as: "partner_1"
+        values:
+          name: "Test Customer - POA WL Filter 1"
+
+      - step: "Create the acceptance's date window"
+        action: "create"
+        model: "performance_obligation_acceptance"
+        save_as: "poa_1"
+        values:
+          partner_id: "REC: partner_1.id"
+          performance_obligation_id: "REC: pob_1.id"
+          date: 2024-01-31
+          date_start: 2024-01-01
+          date_end: 2024-01-31
+
+      - step: "Create employee who will log the work"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_1"
+        values:
+          name: "Test Employee - POA WL Filter 1"
+
+      - step: "Get a working schedule"
+        action: "search"
+        model: "resource.calendar"
+        domain: []
+        save_as: "working_schedule_1"
+        limit: 1
+        order: "id asc"
+
+      - step: "Open a timesheet covering the acceptance's date window"
+        action: "create"
+        model: "hr.timesheet"
+        save_as: "timesheet_1"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_1.id"
+          date_start: 2024-01-01
+          date_end: 2024-01-31
+          working_schedule_id: "REC: working_schedule_1.id"
+
+      - step: "Confirm the timesheet is open"
+        action: "call"
+        target: "timesheet_1"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Get ir.model for res.partner (arbitrary work object type)"
+        action: "search"
+        model: "ir.model"
+        domain: [["model", "=", "res.partner"]]
+        save_as: "ir_model_1"
+        limit: 1
+
+      - step: "Work log #1 - matching AA, in window, will be done"
+        action: "create"
+        model: "hr.work_log"
+        save_as: "wl_pass_1"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_1.id"
+          description: "Matching work log #1"
+          model_id: "REC: ir_model_1.id"
+          work_object_id: "REC: partner_1.id"
+          date: 2024-01-10
+          amount: 3.0
+          analytic_account_id: "REC: pob_aa_1.id"
+
+      - step: "Confirm work log #1"
+        action: "call"
+        target: "wl_pass_1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Approve work log #1 (moves it to done)"
+        action: "call"
+        target: "wl_pass_1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Work log #2 - matching AA, in window, will be done"
+        action: "create"
+        model: "hr.work_log"
+        save_as: "wl_pass_2"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_1.id"
+          description: "Matching work log #2"
+          model_id: "REC: ir_model_1.id"
+          work_object_id: "REC: partner_1.id"
+          date: 2024-01-15
+          amount: 5.0
+          analytic_account_id: "REC: pob_aa_1.id"
+
+      - step: "Confirm work log #2"
+        action: "call"
+        target: "wl_pass_2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Approve work log #2 (moves it to done)"
+        action: "call"
+        target: "wl_pass_2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Work log #3 - wrong AA (another PoB's), in window, done"
+        action: "create"
+        model: "hr.work_log"
+        save_as: "wl_reject_1"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_1.id"
+          description: "Non-matching work log (wrong AA)"
+          model_id: "REC: ir_model_1.id"
+          work_object_id: "REC: partner_1.id"
+          date: 2024-01-12
+          amount: 2.0
+          analytic_account_id: "REC: other_aa_1.id"
+
+      - step: "Confirm work log #3"
+        action: "call"
+        target: "wl_reject_1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Approve work log #3 (moves it to done)"
+        action: "call"
+        target: "wl_reject_1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Allowed work logs count is exactly the two matches"
+        action: "assert"
+        target: "poa_1"
+        asserts:
+          allowed_work_log_ids:
+            type: "m2m"
+            check: "count"
+            expected_count: 2
+
+      - step: "Allowed work logs contain both matches, exclude reject"
+        action: "assert"
+        target: "poa_1"
+        asserts:
+          allowed_work_log_ids:
+            type: "m2m"
+            check: "exact"
+            expected_records:
+              - "REC: wl_pass_1"
+              - "REC: wl_pass_2"
+
+  - name: "Selecting the allowed work logs sums their duration"
+    steps:
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_2"
+        values:
+          name: "Test Source AA - POA WL Qty 2"
+
+      - step: "Create the PoB's own analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "pob_aa_2"
+        values:
+          name: "Test PoB AA - POA WL Qty 2"
+
+      - step: "Create the PoB on its own analytic account"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_2"
+        values:
+          title: "Test PoB - POA WL Qty 2"
+          source_analytic_account_id: "REC: source_aa_2.id"
+          analytic_account_id: "REC: pob_aa_2.id"
+
+      - step: "Create the customer partner"
+        action: "create"
+        model: "res.partner"
+        save_as: "partner_2"
+        values:
+          name: "Test Customer - POA WL Qty 2"
+
+      - step: "Create the acceptance's date window"
+        action: "create"
+        model: "performance_obligation_acceptance"
+        save_as: "poa_2"
+        values:
+          partner_id: "REC: partner_2.id"
+          performance_obligation_id: "REC: pob_2.id"
+          date: 2024-02-29
+          date_start: 2024-02-01
+          date_end: 2024-02-29
+
+      - step: "Create employee who will log the work"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_2"
+        values:
+          name: "Test Employee - POA WL Qty 2"
+
+      - step: "Get a working schedule"
+        action: "search"
+        model: "resource.calendar"
+        domain: []
+        save_as: "working_schedule_2"
+        limit: 1
+        order: "id asc"
+
+      - step: "Open a timesheet covering the acceptance's date window"
+        action: "create"
+        model: "hr.timesheet"
+        save_as: "timesheet_2"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_2.id"
+          date_start: 2024-02-01
+          date_end: 2024-02-29
+          working_schedule_id: "REC: working_schedule_2.id"
+
+      - step: "Confirm the timesheet is open"
+        action: "call"
+        target: "timesheet_2"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Get ir.model for res.partner (arbitrary work object type)"
+        action: "search"
+        model: "ir.model"
+        domain: [["model", "=", "res.partner"]]
+        save_as: "ir_model_2"
+        limit: 1
+
+      - step: "Work log A - 4.0 hours, will be picked"
+        action: "create"
+        model: "hr.work_log"
+        save_as: "wl_a"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_2.id"
+          description: "Work log A"
+          model_id: "REC: ir_model_2.id"
+          work_object_id: "REC: partner_2.id"
+          date: 2024-02-05
+          amount: 4.0
+          analytic_account_id: "REC: pob_aa_2.id"
+
+      - step: "Confirm work log A"
+        action: "call"
+        target: "wl_a"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Approve work log A (moves it to done)"
+        action: "call"
+        target: "wl_a"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Work log B - 2.5 hours, will be picked"
+        action: "create"
+        model: "hr.work_log"
+        save_as: "wl_b"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_2.id"
+          description: "Work log B"
+          model_id: "REC: ir_model_2.id"
+          work_object_id: "REC: partner_2.id"
+          date: 2024-02-08
+          amount: 2.5
+          analytic_account_id: "REC: pob_aa_2.id"
+
+      - step: "Confirm work log B"
+        action: "call"
+        target: "wl_b"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Approve work log B (moves it to done)"
+        action: "call"
+        target: "wl_b"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Pick both allowed work logs on the acceptance"
+        action: "write"
+        target: "poa_2"
+        values:
+          poa_work_log_ids: [[6, 0, ["REC: wl_a.id", "REC: wl_b.id"]]]
+
+      - step: "Work qty is the sum of the picked logs' duration"
+        action: "assert"
+        target: "poa_2"
+        asserts:
+          qty_work_log:
+            type: "value"
+            expected: 6.5
+
+  - name: "Work qty is zero when no work log is picked"
+    steps:
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_3"
+        values:
+          name: "Test Source AA - POA WL Qty Zero 3"
+
+      - step: "Create the PoB on its own analytic account"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_3"
+        values:
+          title: "Test PoB - POA WL Qty Zero 3"
+          source_analytic_account_id: "REC: source_aa_3.id"
+
+      - step: "Create the customer partner"
+        action: "create"
+        model: "res.partner"
+        save_as: "partner_3"
+        values:
+          name: "Test Customer - POA WL Qty Zero 3"
+
+      - step: "Create the acceptance without picking any work log"
+        action: "create"
+        model: "performance_obligation_acceptance"
+        save_as: "poa_3"
+        values:
+          partner_id: "REC: partner_3.id"
+          performance_obligation_id: "REC: pob_3.id"
+          date: 2024-03-31
+          date_start: 2024-03-01
+          date_end: 2024-03-31
+
+      - step: "No work log picked yet"
+        action: "assert"
+        target: "poa_3"
+        asserts:
+          poa_work_log_ids:
+            type: "m2m"
+            check: "count"
+            expected_count: 0
+
+      - step: "Work qty stays zero"
+        action: "assert"
+        target: "poa_3"
+        asserts:
+          qty_work_log:
+            type: "value"
+            expected: 0.0
