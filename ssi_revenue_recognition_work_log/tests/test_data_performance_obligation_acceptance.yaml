@@ -59,14 +59,6 @@ scenarios:
         values:
           name: "Test Employee - POA WL Filter 1"
 
-      - step: "Get a working schedule"
-        action: "search"
-        model: "resource.calendar"
-        domain: []
-        save_as: "working_schedule_1"
-        limit: 1
-        order: "id asc"
-
       - step: "Open a timesheet covering the acceptance's date window"
         action: "create"
         model: "hr.timesheet"
@@ -76,7 +68,6 @@ scenarios:
           employee_id: "REC: employee_1.id"
           date_start: 2024-01-01
           date_end: 2024-01-31
-          working_schedule_id: "REC: working_schedule_1.id"
 
       - step: "Confirm the timesheet is open"
         action: "call"
@@ -263,14 +254,6 @@ scenarios:
         values:
           name: "Test Employee - POA WL Qty 2"
 
-      - step: "Get a working schedule"
-        action: "search"
-        model: "resource.calendar"
-        domain: []
-        save_as: "working_schedule_2"
-        limit: 1
-        order: "id asc"
-
       - step: "Open a timesheet covering the acceptance's date window"
         action: "create"
         model: "hr.timesheet"
@@ -280,7 +263,6 @@ scenarios:
           employee_id: "REC: employee_2.id"
           date_start: 2024-02-01
           date_end: 2024-02-29
-          working_schedule_id: "REC: working_schedule_2.id"
 
       - step: "Confirm the timesheet is open"
         action: "call"
