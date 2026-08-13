@@ -17,6 +17,7 @@
         "ssi_analytic_budget",
         "ssi_product_usage_account_type",
         "base_automation",
+        "web_tour",
     ],
     "data": [
         "security/ir_module_category_data.xml",
@@ -41,6 +42,7 @@
         "views/performance_obligation_acceptance_views.xml",
         "views/performance_obligation_views.xml",
         "views/revenue_recognition_views.xml",
+        "views/assets.xml",
     ],
     "demo": [
         "demo/account_account_demo.xml",
