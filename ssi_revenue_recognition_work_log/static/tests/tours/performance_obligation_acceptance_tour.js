@@ -147,19 +147,22 @@ odoo.define(
                     trigger:
                         ".o_field_widget[name='poa_work_log_ids'] .o_field_x2many_list_row_add a",
                 },
-                // The SelectCreateDialog's list view is populated by its
-                // own `search_read` RPC after the modal opens, which can
-                // run past the default 10s step timeout under CI load —
-                // this is not a logic/filter bug (allowed_work_log_ids'
-                // domain is already correct by the time it resolves).
-                // Give this step more time to poll for the row instead
-                // of shortening what it asserts (`timeout`, tour-14.md
-                // §2 "Key step" — supported per-step override, default
-                // 10000ms).
+                // No leading ".modal " on these two triggers: while a
+                // modal is visible, tour_manager.js (`$modal_displayed
+                // .find(tip.trigger)`, web_tour/static/src/js/
+                // tour_manager.js) already scopes the search to inside
+                // that modal. A trigger starting with ".modal" would
+                // instead require a NESTED ".modal" descendant of the
+                // modal, which never exists — that selector can never
+                // match, at any timeout, which is exactly what CI showed
+                // (still failing at the same step after the timeout was
+                // raised to 30s: not a rendering race, a structurally
+                // unmatchable selector). Kept `timeout: 30000` anyway as
+                // a reasonable margin for the dialog's own `search_read`
+                // RPC under CI load.
                 {
                     content: "The allowed work log is offered in the dialog",
-                    trigger:
-                        ".modal .o_list_view .o_data_row:contains(TOUR-POBAWL-WORKLOG-1)",
+                    trigger: ".o_list_view .o_data_row:contains(TOUR-POBAWL-WORKLOG-1)",
                     timeout: 30000,
                     run: function () {
                         // Assertion only.
@@ -168,7 +171,7 @@ odoo.define(
                 {
                     content: "Select the allowed work log's row",
                     trigger:
-                        ".modal .o_list_view .o_data_row:contains(TOUR-POBAWL-WORKLOG-1) .o_list_record_selector input",
+                        ".o_list_view .o_data_row:contains(TOUR-POBAWL-WORKLOG-1) .o_list_record_selector input",
                 },
                 {
                     content: "Confirm the selection",
