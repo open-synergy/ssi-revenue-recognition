@@ -1,0 +1,238 @@
+scenarios:
+  - name: "action_open is rejected on a draft PoB"
+    steps:
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_1"
+        values:
+          name: "Test Source AA - Open Guard Draft 1"
+
+      - step: "Create draft PoB pointing at the source analytic account"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_1"
+        values:
+          title: "Test PoB - Open Guard Draft 1"
+          source_analytic_account_id: "REC: source_aa_1.id"
+
+      - step: "action_open on a draft PoB is rejected"
+        action: "call"
+        target: "pob_1"
+        method: "action_open"
+        expect_error:
+          type: "UserError"
+          message_contains: "Document cannot be opened from its current state"
+
+      - step: "State stays draft and no analytic account was created"
+        action: "assert"
+        target: "pob_1"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+          analytic_account_id:
+            type: "value"
+            operator: "is_falsy"
+
+  - name: "action_open is rejected on a PoB already open"
+    steps:
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_2"
+        values:
+          name: "Test Source AA - Open Guard Already Open 2"
+
+      - step: "Create draft PoB as admin (owns the record for as_user steps)"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_2"
+        as_user: "base.user_admin"
+        values:
+          title: "Test PoB - Open Guard Already Open 2"
+          source_analytic_account_id: "REC: source_aa_2.id"
+
+      - step: "Confirm the PoB"
+        action: "call"
+        target: "pob_2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04) -- tanpa
+      # step ini approve_ok bisa terbaca dari cache yang diisi
+      # action_confirm, saat approval.approval belum ada.
+      - step: "PoB is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "pob_2"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the PoB (auto-runs action_open via _after_approved_method)"
+        action: "call"
+        target: "pob_2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "action_open on an already-open PoB is rejected"
+        action: "call"
+        target: "pob_2"
+        method: "action_open"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+          message_contains: "Document cannot be opened from its current state"
+
+      - step: "State stays open, the rejected call did not disturb it"
+        action: "assert"
+        target: "pob_2"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+  - name: "Approval flow reaches open (regression guard)"
+    steps:
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_3"
+        values:
+          name: "Test Source AA - Open Guard Approval Flow 3"
+
+      - step: "Create draft PoB as admin"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_3"
+        as_user: "base.user_admin"
+        values:
+          title: "Test PoB - Open Guard Approval Flow 3"
+          source_analytic_account_id: "REC: source_aa_3.id"
+
+      - step: "PoB starts draft with no analytic account yet"
+        action: "assert"
+        target: "pob_3"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+          analytic_account_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Confirm the PoB"
+        action: "call"
+        target: "pob_3"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04).
+      - step: "PoB is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "pob_3"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the PoB reaches open through the guarded hook"
+        action: "call"
+        target: "pob_3"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "post_open_action ran: the PoB owns an analytic account"
+        action: "assert"
+        target: "pob_3"
+        asserts:
+          analytic_account_id:
+            type: "value"
+            operator: "is_truthy"
+
+  - name: "done -> open automation keeps working (regression guard)"
+    steps:
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_4"
+        values:
+          name: "Test Source AA - Open Guard Done Reopen 4"
+
+      - step: "Create draft PoB as admin"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_4"
+        as_user: "base.user_admin"
+        values:
+          title: "Test PoB - Open Guard Done Reopen 4"
+          source_analytic_account_id: "REC: source_aa_4.id"
+
+      - step: "Confirm the PoB"
+        action: "call"
+        target: "pob_4"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04).
+      - step: "PoB is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "pob_4"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the PoB reaches open"
+        action: "call"
+        target: "pob_4"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Move the PoB to done (simulates pob_open_2_done automation)"
+        action: "call"
+        target: "pob_4"
+        method: "action_done"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Reopen from done (simulates pob_done_2_open automation)"
+        action: "call"
+        target: "pob_4"
+        method: "action_open"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
