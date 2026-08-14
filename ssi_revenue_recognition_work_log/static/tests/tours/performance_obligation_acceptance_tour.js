@@ -147,10 +147,20 @@ odoo.define(
                     trigger:
                         ".o_field_widget[name='poa_work_log_ids'] .o_field_x2many_list_row_add a",
                 },
+                // The SelectCreateDialog's list view is populated by its
+                // own `search_read` RPC after the modal opens, which can
+                // run past the default 10s step timeout under CI load —
+                // this is not a logic/filter bug (allowed_work_log_ids'
+                // domain is already correct by the time it resolves).
+                // Give this step more time to poll for the row instead
+                // of shortening what it asserts (`timeout`, tour-14.md
+                // §2 "Key step" — supported per-step override, default
+                // 10000ms).
                 {
                     content: "The allowed work log is offered in the dialog",
                     trigger:
                         ".modal .o_list_view .o_data_row:contains(TOUR-POBAWL-WORKLOG-1)",
+                    timeout: 30000,
                     run: function () {
                         // Assertion only.
                     },
