@@ -33,6 +33,14 @@ class TestUiRevenueRecognition(HttpSavepointCase):
         )
 
         cls.partner = cls.env["res.partner"].create({"name": "TOUR-RR-PARTNER"})
+        # Dedicated partner for the delete fixture (see `_create` below):
+        # its document number must stay "/" for `unlink()` to succeed
+        # (`_check_document_number_unlink`), so it cannot be identified
+        # in the list by its "# Document" text like the other fixtures.
+        # This partner is the row's identifying text instead.
+        cls.partner_delete = cls.env["res.partner"].create(
+            {"name": "TOUR-RR-DELETE-PARTNER"}
+        )
         source_aa = cls.env["account.analytic.account"].create(
             {"name": "TOUR-RR-SOURCE-AA", "partner_id": cls.partner.id}
         )
@@ -105,36 +113,44 @@ class TestUiRevenueRecognition(HttpSavepointCase):
 
         Rr = cls.env["revenue_recognition"]
 
-        def _create(name):
+        def _create(name, partner=None):
             """Create a draft RR fixture with the given ``name``, populated.
 
             :param name: value assigned to the document number field,
                 so the tour can select the record via its display name.
+                Pass ``None`` to leave it at its "/" default (required
+                for a fixture that the tour will delete, since
+                `unlink()` refuses any document number other than "/").
+            :param partner: partner to link; defaults to
+                ``cls.partner``.
             :return: the created ``revenue_recognition`` record, after
                 running the same population steps as the ``Populate``
                 button.
             """
-            record = Rr.create(
-                {
-                    "name": name,
-                    "type_id": cls.rr_type.id,
-                    "journal_id": journal.id,
-                    "partner_id": cls.partner.id,
-                    "performance_obligation_id": cls.pob.id,
-                    "unearned_income_account_id": unearned_account.id,
-                    "income_account_id": income_account.id,
-                    "date": "2026-01-31",
-                    "date_start": "2026-01-01",
-                    "date_end": "2026-01-31",
-                    "user_id": cls.admin.id,
-                }
-            )
+            values = {
+                "type_id": cls.rr_type.id,
+                "journal_id": journal.id,
+                "partner_id": (partner or cls.partner).id,
+                "performance_obligation_id": cls.pob.id,
+                "unearned_income_account_id": unearned_account.id,
+                "income_account_id": income_account.id,
+                "date": "2026-01-31",
+                "date_start": "2026-01-01",
+                "date_end": "2026-01-31",
+                "user_id": cls.admin.id,
+            }
+            if name is not None:
+                values["name"] = name
+            record = Rr.create(values)
             record._populate_pob_acceptances()
             record._populate_wip_move_line()
             return record
 
         cls.rr_edit = _create("RR-TOUR-EDIT")
-        cls.rr_delete = _create("RR-TOUR-DELETE")
+        # Document number stays "/" (see `_create` docstring): the delete
+        # tour identifies this row by its dedicated partner instead of by
+        # "# Document" text.
+        cls.rr_delete = _create(None, partner=cls.partner_delete)
         cls.rr_confirm = _create("RR-TOUR-CONFIRM")
         cls.rr_approve = _create("RR-TOUR-APPROVE")
         cls.rr_approve.action_confirm()

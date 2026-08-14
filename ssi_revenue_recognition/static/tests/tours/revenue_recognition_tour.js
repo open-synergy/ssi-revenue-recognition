@@ -72,6 +72,21 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 trigger: ".ui-autocomplete .ui-menu-item a:contains(TOUR-RR-PARTNER)",
                 in_modal: false,
             },
+            // Picking the Partner triggers `onchange_performance_obligation_id`
+            // (it unconditionally resets `performance_obligation_id`, in case
+            // a PoB from a previous partner was selected). Wait for that
+            // round trip to land before touching `# Performance Obligation` —
+            // otherwise the late-arriving onchange response can wipe out the
+            // PoB this tour is about to pick, since it is applied on top of
+            // whatever the widget shows at that later moment.
+            {
+                content: "Partner is committed",
+                trigger:
+                    ".o_field_many2one[name='partner_id'] input[value='TOUR-RR-PARTNER']",
+                run: function () {
+                    // Assertion only.
+                },
+            },
             {
                 content: "Select the # Performance Obligation",
                 trigger: ".o_field_many2one[name='performance_obligation_id'] input",
@@ -274,9 +289,14 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
         "ssi_revenue_recognition_revenue_recognition_delete",
         {test: true, url: "/web"},
         [].concat(openMenuSteps(), [
+            // Identified by its dedicated Partner, not by "# Document":
+            // `unlink()` requires the document number to still be "/"
+            // (`setUpClass`), so it cannot double as this row's
+            // identifying text.
             {
                 content: "Open the record",
-                trigger: ".o_data_row:contains(RR-TOUR-DELETE) .o_data_cell:first",
+                trigger:
+                    ".o_data_row:contains(TOUR-RR-DELETE-PARTNER) .o_data_cell:first",
                 extra_trigger: ".o_list_view",
             },
             {
@@ -317,7 +337,8 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
             },
             {
                 content: "The record no longer appears in the list",
-                trigger: ".o_list_view:not(:has(.o_data_row:contains(RR-TOUR-DELETE)))",
+                trigger:
+                    ".o_list_view:not(:has(.o_data_row:contains(TOUR-RR-DELETE-PARTNER)))",
                 run: function () {
                     // Assertion only.
                 },

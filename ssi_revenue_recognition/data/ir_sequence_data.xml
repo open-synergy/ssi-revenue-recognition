@@ -35,4 +35,15 @@
     <field name="use_date_range" eval="1" />
     <field eval="False" name="company_id" />
 </record>
+
+<!-- Revenue Recognition Type -->
+<record id="rrt_sequence" model="ir.sequence">
+    <field name="name">Revenue Recognition Type</field>
+    <field name="code">revenue_recognition_type</field>
+    <field name="prefix">RRT/</field>
+    <field eval="1" name="number_next" />
+    <field eval="1" name="number_increment" />
+    <field name="padding" eval="6" />
+    <field eval="False" name="company_id" />
+</record>
 </odoo>

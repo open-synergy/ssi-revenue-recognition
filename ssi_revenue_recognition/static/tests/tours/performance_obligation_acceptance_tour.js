@@ -182,10 +182,14 @@ odoo.define("ssi_revenue_recognition.performance_obligation_acceptance_tour", fu
         "ssi_revenue_recognition_performance_obligation_acceptance_delete",
         {test: true, url: "/web"},
         [].concat(openMenuSteps(), [
-            // Flow 2 — Open the record to delete.
+            // Flow 2 — Open the record to delete. Identified by its
+            // dedicated Partner, not by "# Document": `unlink()` requires
+            // the document number to still be "/" (`setUpClass`), so it
+            // cannot double as this row's identifying text.
             {
                 content: "Open the record",
-                trigger: ".o_data_row:contains(POA-TOUR-DELETE) .o_data_cell:first",
+                trigger:
+                    ".o_data_row:contains(TOUR-POBA-DELETE-PARTNER) .o_data_cell:first",
                 extra_trigger: ".o_list_view",
             },
             {
@@ -235,7 +239,7 @@ odoo.define("ssi_revenue_recognition.performance_obligation_acceptance_tour", fu
             {
                 content: "The record no longer appears in the list",
                 trigger:
-                    ".o_list_view:not(:has(.o_data_row:contains(POA-TOUR-DELETE)))",
+                    ".o_list_view:not(:has(.o_data_row:contains(TOUR-POBA-DELETE-PARTNER)))",
                 run: function () {
                     // Assertion only.
                 },

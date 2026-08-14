@@ -33,6 +33,14 @@ class TestUiPerformanceObligationAcceptance(HttpSavepointCase):
         )
 
         cls.partner = cls.env["res.partner"].create({"name": "TOUR-POBA-PARTNER"})
+        # Dedicated partner for the delete fixture (see `_create` below):
+        # its document number must stay "/" for `unlink()` to succeed
+        # (`_check_document_number_unlink`), so it cannot be identified
+        # in the list by its "# Document" text like the other fixtures.
+        # This partner is the row's identifying text instead.
+        cls.partner_delete = cls.env["res.partner"].create(
+            {"name": "TOUR-POBA-DELETE-PARTNER"}
+        )
         source_aa = cls.env["account.analytic.account"].create(
             {"name": "TOUR-POBA-SOURCE-AA", "partner_id": cls.partner.id}
         )
@@ -52,28 +60,36 @@ class TestUiPerformanceObligationAcceptance(HttpSavepointCase):
 
         Poa = cls.env["performance_obligation_acceptance"]
 
-        def _create(name):
+        def _create(name, partner=None):
             """Create a draft acceptance fixture with the given ``name``.
 
             :param name: value assigned to the document number field,
                 so the tour can select the record via its display name.
+                Pass ``None`` to leave it at its "/" default (required
+                for a fixture that the tour will delete, since
+                `unlink()` refuses any document number other than "/").
+            :param partner: partner to link; defaults to
+                ``cls.partner``.
             :return: the created ``performance_obligation_acceptance``
                 record.
             """
-            return Poa.create(
-                {
-                    "name": name,
-                    "partner_id": cls.partner.id,
-                    "performance_obligation_id": cls.pob.id,
-                    "date": "2026-01-15",
-                    "date_start": "2026-01-01",
-                    "date_end": "2026-01-31",
-                    "user_id": cls.admin.id,
-                }
-            )
+            values = {
+                "partner_id": (partner or cls.partner).id,
+                "performance_obligation_id": cls.pob.id,
+                "date": "2026-01-15",
+                "date_start": "2026-01-01",
+                "date_end": "2026-01-31",
+                "user_id": cls.admin.id,
+            }
+            if name is not None:
+                values["name"] = name
+            return Poa.create(values)
 
         cls.poa_edit = _create("POA-TOUR-EDIT")
-        cls.poa_delete = _create("POA-TOUR-DELETE")
+        # Document number stays "/" (see `_create` docstring): the delete
+        # tour identifies this row by its dedicated partner instead of by
+        # "# Document" text.
+        cls.poa_delete = _create(None, partner=cls.partner_delete)
         cls.poa_confirm = _create("POA-TOUR-CONFIRM")
         cls.poa_approve = _create("POA-TOUR-APPROVE")
         cls.poa_approve.action_confirm()
