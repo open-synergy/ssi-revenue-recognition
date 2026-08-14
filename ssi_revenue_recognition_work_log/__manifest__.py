@@ -11,9 +11,11 @@
     "depends": [
         "ssi_revenue_recognition",
         "ssi_work_log_mixin",
+        "web_tour",
     ],
     "data": [
         "views/performance_obligation_acceptance_views.xml",
+        "views/assets.xml",
     ],
     "demo": [],
     "images": [],
