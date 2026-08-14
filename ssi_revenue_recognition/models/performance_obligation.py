@@ -2,7 +2,8 @@
 # Copyright 2022 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 from odoo.addons.ssi_decorator import ssi_decorator
 
@@ -431,6 +432,50 @@ class PerformanceObligation(models.Model):
         if not source or source == self.analytic_account_id:
             return False
         return source.id
+
+    @ssi_decorator.pre_open_check()
+    def _10_check_open_source_state(self):
+        """Block ``action_open`` when called from a state that is not
+        allowed to open.
+
+        ``_automatically_insert_open_button`` is ``False`` on this
+        model, so ``_check_open_policy()`` returns early and never
+        evaluates ``open_ok`` -- the ``draft -> open`` transition is
+        gated by ``approval.template`` instead
+        (``_after_approved_method = "action_open"``). Without this
+        hook ``action_open()`` can be called from any state, writing
+        ``open`` and running every ``post_open_action`` side effect
+        (analytic account creation, project creation) unconditionally.
+
+        Runs in the ``pre_open_check`` slot, before
+        ``record.write(record._prepare_open_data())``, so raising here
+        leaves ``state`` and every derived record untouched.
+
+        Allowed source states:
+
+        * ``confirm`` -- the approval flow: ``_action_approval``
+          does not write the state itself; ``action_open`` is called
+          by ``mixin_multiple_approval`` while the record is still
+          ``confirm``.
+        * ``done`` -- the ``pob_done_2_open`` automation
+          (``data/base_automation_data.xml``) reopens a ``done`` PoB
+          when ``quantity_diff`` changes back to non-zero.
+
+        :raises UserError: when ``state`` is neither ``confirm`` nor
+            ``done``.
+        """
+        self.ensure_one()
+        if self.state not in ("confirm", "done"):
+            error_message = _(
+                """
+Context: Open document
+Database ID: %s
+Problem: Document cannot be opened from its current state
+Solution: Open the document only from the Confirm or Done state
+"""
+                % (self.id,)
+            )
+            raise UserError(error_message)
 
     @ssi_decorator.post_open_action()
     def _10_create_analytic_account(self):

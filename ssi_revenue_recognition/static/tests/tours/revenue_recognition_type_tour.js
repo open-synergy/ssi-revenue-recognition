@@ -471,6 +471,20 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_type_tour", function (
                     $unarchive[0].click();
                 },
             },
+            // Unarchiving is an async write + list refresh. The list is
+            // still Archived-filtered at this point, so the record
+            // disappearing from it is the signal that the write landed —
+            // wait for that before touching the filter, otherwise removing
+            // the Archived filter can race the still-in-flight refresh and
+            // read a stale (still-archived) record.
+            {
+                content: "The record no longer appears in the Archived list",
+                trigger:
+                    ".o_list_view:not(:has(.o_data_row:contains(TOUR-RRT-ACTIVATE)))",
+                run: function () {
+                    // Assertion only.
+                },
+            },
 
             // Post-Condition — The record is restored, appears in the
             // default list again.
