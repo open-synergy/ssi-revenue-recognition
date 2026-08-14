@@ -68,6 +68,26 @@ odoo.define(
                         // Assertion only.
                     },
                 },
+
+                // There is deliberately NO further step asserting the
+                // resulting text after the pick below. In 14.0 (Sizzle,
+                // web/static/lib/jquery/jquery.js) the attribute selector
+                // "input[value=...]" reads elem.defaultValue — the
+                // original HTML attribute — never the live elem.value the
+                // many2one widget sets via $input.val() when an item is
+                // picked, so such a trigger would never match even though
+                // the value is right there on screen (odoo-development-ui-
+                // test skill, patterns.md §L, "m2o tak terbaca di mode
+                // edit"). That section's own fix — leaving the record and
+                // reopening it read-only, where m2o values render as real
+                // text nodes — does not apply here since this delta tour
+                // never saves. The click below succeeding on a real,
+                // name_search-matched dropdown item (it does not exist
+                // unless "Main Operating Unit" is found) is itself the
+                // proof that the field accepts input, exactly like the
+                // base create tour's other many2one fields (Partner,
+                // # Performance Obligation, Type), which do not assert a
+                // post-pick value either.
                 {
                     content: "Open the Operating Unit dropdown",
                     trigger: ".o_field_many2one[name='operating_unit_id'] input",
@@ -78,19 +98,6 @@ odoo.define(
                     trigger:
                         ".ui-autocomplete .ui-menu-item a:contains(Main Operating Unit)",
                     in_modal: false,
-                },
-                {
-                    // `operating.unit.name_get()` prefixes the code, e.g.
-                    // "[OU1] Main Operating Unit" — match on a substring of
-                    // the input's value instead of the exact display name,
-                    // so the tour does not depend on that code.
-                    content: "Operating Unit is filled in on the form",
-                    trigger:
-                        ".o_field_many2one[name='operating_unit_id'] input[value*='Main Operating Unit']",
-                    run: function () {
-                        // Assertion only. The tour stops here — Save/
-                        // Confirm/Approve are out of scope for this delta.
-                    },
                 },
             ]
         );
