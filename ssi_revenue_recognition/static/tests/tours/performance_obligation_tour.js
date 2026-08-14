@@ -83,7 +83,7 @@ odoo.define("ssi_revenue_recognition.performance_obligation_tour", function (req
             },
             {
                 content: "Fill in the Price Unit",
-                trigger: ".o_field_widget[name='price_unit']",
+                trigger: ".o_field_widget[name='price_unit'] input",
                 run: "text 100.00",
             },
 
@@ -147,7 +147,7 @@ odoo.define("ssi_revenue_recognition.performance_obligation_tour", function (req
             {
                 content: "Change the Title",
                 trigger: ".o_field_widget[name='title']",
-                run: "text TOUR-POB-EDIT (updated)",
+                run: "text TOUR-POB-EDIT-UPDATED",
             },
 
             // Flow 5 — Click Save.
@@ -164,7 +164,7 @@ odoo.define("ssi_revenue_recognition.performance_obligation_tour", function (req
             },
             {
                 content: "The updated title is shown in the list",
-                trigger: ".o_data_row:contains(TOUR-POB-EDIT (updated))",
+                trigger: ".o_data_row:contains(TOUR-POB-EDIT-UPDATED)",
                 run: function () {
                     // Assertion only.
                 },
@@ -210,16 +210,12 @@ odoo.define("ssi_revenue_recognition.performance_obligation_tour", function (req
                 },
             },
 
-            // Flow 5 — Click OK to confirm.
+            // Flow 5 — Click OK to confirm. Odoo returns straight to the
+            // list after a successful delete (no back button to click).
             {
                 content: "Confirm deletion",
                 trigger: ".modal-footer button.btn-primary",
                 in_modal: true,
-            },
-            {
-                content: "Back to the list",
-                trigger:
-                    ".breadcrumb-item.o_back_button a:contains(Performance Obligations)",
             },
 
             // Post-Condition — The record is permanently removed.

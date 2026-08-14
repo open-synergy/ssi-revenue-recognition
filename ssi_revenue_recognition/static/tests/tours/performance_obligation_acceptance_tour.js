@@ -215,16 +215,12 @@ odoo.define("ssi_revenue_recognition.performance_obligation_acceptance_tour", fu
                 },
             },
 
-            // Flow 5 — Click OK to confirm.
+            // Flow 5 — Click OK to confirm. Odoo returns straight to the
+            // list after a successful delete (no back button to click).
             {
                 content: "Confirm deletion",
                 trigger: ".modal-footer button.btn-primary",
                 in_modal: true,
-            },
-            {
-                content: "Back to the list",
-                trigger:
-                    ".breadcrumb-item.o_back_button a:contains(Performance Obligation Acceptances)",
             },
 
             // Post-Condition — The record is permanently removed.

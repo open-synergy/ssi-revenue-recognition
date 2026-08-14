@@ -267,11 +267,8 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 trigger: ".modal-footer button.btn-primary",
                 in_modal: true,
             },
-            {
-                content: "Back to the list",
-                trigger:
-                    ".breadcrumb-item.o_back_button a:contains(Revenue Recognitions)",
-            },
+            // Odoo returns straight to the list after a successful
+            // delete (no back button to click).
             {
                 content: "The record no longer appears in the list",
                 trigger: ".o_list_view:not(:has(.o_data_row:contains(RR-TOUR-DELETE)))",

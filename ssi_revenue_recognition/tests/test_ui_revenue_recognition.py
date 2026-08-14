@@ -71,6 +71,7 @@ class TestUiRevenueRecognition(HttpSavepointCase):
         cls.rr_type = cls.env["revenue_recognition_type"].create(
             {
                 "name": "TOUR-RR-TYPE",
+                "code": "TOURRRTYPE",
                 "journal_id": journal.id,
                 "unearned_income_usage_id": usage.id,
                 "income_usage_id": usage.id,

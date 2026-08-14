@@ -50,6 +50,7 @@ class TestUiRevenueRecognitionType(HttpSavepointCase):
         cls.rrt_edit = Type.create(
             {
                 "name": "TOUR-RRT-EDIT",
+                "code": "TOURRRTEDIT",
                 "journal_id": journal.id,
                 "unearned_income_usage_id": usage.id,
                 "income_usage_id": usage.id,
@@ -58,6 +59,7 @@ class TestUiRevenueRecognitionType(HttpSavepointCase):
         cls.rrt_delete = Type.create(
             {
                 "name": "TOUR-RRT-DELETE",
+                "code": "TOURRRTDEL",
                 "journal_id": journal.id,
                 "unearned_income_usage_id": usage.id,
                 "income_usage_id": usage.id,
@@ -66,6 +68,7 @@ class TestUiRevenueRecognitionType(HttpSavepointCase):
         cls.rrt_deactivate = Type.create(
             {
                 "name": "TOUR-RRT-DEACTIVATE",
+                "code": "TOURRRTDEACT",
                 "journal_id": journal.id,
                 "unearned_income_usage_id": usage.id,
                 "income_usage_id": usage.id,
@@ -74,6 +77,7 @@ class TestUiRevenueRecognitionType(HttpSavepointCase):
         cls.rrt_activate = Type.create(
             {
                 "name": "TOUR-RRT-ACTIVATE",
+                "code": "TOURRRTACT",
                 "journal_id": journal.id,
                 "unearned_income_usage_id": usage.id,
                 "income_usage_id": usage.id,

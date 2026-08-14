@@ -194,7 +194,7 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_type_tour", function (
             {
                 content: "Change the Name",
                 trigger: ".o_field_widget[name='name']",
-                run: "text TOUR-RRT-EDIT (updated)",
+                run: "text TOUR-RRT-EDIT-UPDATED",
             },
 
             // Flow 6 — Click Save.
@@ -211,7 +211,7 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_type_tour", function (
             },
             {
                 content: "The updated name is shown in the list",
-                trigger: ".o_data_row:contains(TOUR-RRT-EDIT (updated))",
+                trigger: ".o_data_row:contains(TOUR-RRT-EDIT-UPDATED)",
                 run: function () {
                     // Assertion only.
                 },
