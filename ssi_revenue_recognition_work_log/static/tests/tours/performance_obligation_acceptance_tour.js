@@ -104,9 +104,15 @@ odoo.define(
                 // Performance Obligation and Revenue Recognition; see
                 // docs/performance_obligation/01-create.md in this
                 // module).
+                // ":not(:contains(Fullfilment))" excludes the
+                // "Fullfilment Work Logs" tab added below — its label
+                // also contains the substring "Work Log", so the plain
+                // ":contains(Work Log)" selector matches both tabs and
+                // the tour's default click can land on either one.
                 {
                     content: "Work Log tab is displayed",
-                    trigger: ".o_notebook .nav-link:contains(Work Log)",
+                    trigger:
+                        ".o_notebook .nav-link:contains(Work Log):not(:contains(Fullfilment))",
                     extra_trigger: ".o_form_view.o_form_editable",
                 },
                 {
