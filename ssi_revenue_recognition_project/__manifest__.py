@@ -12,9 +12,11 @@
     "depends": [
         "ssi_revenue_recognition",
         "ssi_project",
+        "web_tour",
     ],
     "data": [
         "views/service_contract_performance_obligation_views.xml",
+        "views/assets.xml",
     ],
     "images": [
         "static/description/banner.png",
