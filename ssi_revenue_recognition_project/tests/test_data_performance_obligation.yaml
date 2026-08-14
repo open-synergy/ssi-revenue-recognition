@@ -1,0 +1,151 @@
+scenarios:
+  - name: "Opening a PoB with auto_create_project creates a linked project"
+    steps:
+      - step: "Create source analytic account with a partner"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_1"
+        values:
+          name: "Test Source AA - Auto Create Project 1"
+          partner_id: "REF: base.res_partner_2"
+
+      - step: "Create the PoB's own analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "pob_aa_1"
+        values:
+          name: "Test PoB AA - Auto Create Project 1"
+
+      - step: "Create draft PoB with auto_create_project enabled"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_1"
+        as_user: "base.user_admin"
+        values:
+          title: "Test PoB - Auto Create Project 1"
+          source_analytic_account_id: "REC: source_aa_1.id"
+          analytic_account_id: "REC: pob_aa_1.id"
+          auto_create_project: true
+          date_start: 2026-01-01
+          date_end: 2026-12-31
+
+      - step: "PoB has no project yet"
+        action: "assert"
+        target: "pob_1"
+        asserts:
+          project_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Confirm the PoB"
+        action: "call"
+        target: "pob_1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04) -- tanpa
+      # step ini approve_ok bisa terbaca dari cache yang diisi
+      # action_confirm, saat approval.approval belum ada.
+      - step: "PoB is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "pob_1"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the PoB (auto-runs action_open, no ValueError)"
+        action: "call"
+        target: "pob_1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "A project.project was created and linked to the PoB"
+        action: "assert"
+        target: "pob_1"
+        asserts:
+          project_id:
+            type: "value"
+            operator: "is_truthy"
+          project_id.name:
+            type: "value"
+            expected: "Test PoB - Auto Create Project 1"
+          project_id.analytic_account_id:
+            type: "m2o"
+            expected: "REC: pob_aa_1"
+          project_id.partner_id:
+            type: "m2o"
+            expected_xml_id: "base.res_partner_2"
+          project_id.date_start:
+            type: "value"
+            expected: 2026-01-01
+          project_id.date:
+            type: "value"
+            expected: 2026-12-31
+
+  - name: "Opening a PoB without auto_create_project creates no project"
+    steps:
+      - step: "Create source analytic account with a partner"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_2"
+        values:
+          name: "Test Source AA - Auto Create Project 2"
+          partner_id: "REF: base.res_partner_2"
+
+      - step: "Create draft PoB with auto_create_project disabled"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_2"
+        as_user: "base.user_admin"
+        values:
+          title: "Test PoB - Auto Create Project 2"
+          source_analytic_account_id: "REC: source_aa_2.id"
+          auto_create_project: false
+
+      - step: "Confirm the PoB"
+        action: "call"
+        target: "pob_2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04).
+      - step: "PoB is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "pob_2"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the PoB reaches open with no project created"
+        action: "call"
+        target: "pob_2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "PoB still owns no project"
+        action: "assert"
+        target: "pob_2"
+        asserts:
+          project_id:
+            type: "value"
+            operator: "is_falsy"
