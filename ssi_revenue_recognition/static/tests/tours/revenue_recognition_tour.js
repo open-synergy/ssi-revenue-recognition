@@ -92,6 +92,12 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 trigger: ".ui-autocomplete .ui-menu-item a:contains(TOUR-RR-TYPE)",
                 in_modal: false,
             },
+            // Unearned Income Account/Income Account live on the Accounting
+            // tab, which is not the notebook's default (first) page.
+            {
+                content: "Open the Accounting tab",
+                trigger: ".o_notebook .nav-link:contains(Accounting)",
+            },
             {
                 content:
                     "Fill in the Unearned Income Account (no account mapping is configured for the product, so it was not auto-resolved)",
