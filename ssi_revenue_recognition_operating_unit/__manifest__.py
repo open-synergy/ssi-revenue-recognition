@@ -12,6 +12,7 @@
     "depends": [
         "ssi_revenue_recognition",
         "ssi_operating_unit_mixin",
+        "web_tour",
     ],
     "data": [
         "security/res_group/service_contract_performance_obligation.xml",
@@ -23,6 +24,7 @@
         "views/service_contract_performance_obligation_views.xml",
         "views/performance_obligation_acceptance_views.xml",
         "views/revenue_recognition_views.xml",
+        "views/assets.xml",
     ],
     "images": [
         "static/description/banner.png",

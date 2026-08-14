@@ -19,6 +19,13 @@ To install this module, you need to:
 5.  Search For *Revenue Recognition + Operating Unit Integration*
 6.  Install the module
 
+Work Instruction
+================
+
+* `Performance Obligation <docs/performance_obligation/index.html>`_
+* `Performance Obligation Acceptance <docs/performance_obligation_acceptance/index.html>`_
+* `Revenue Recognition <docs/revenue_recognition/index.html>`_
+
 Credits
 =======
 
