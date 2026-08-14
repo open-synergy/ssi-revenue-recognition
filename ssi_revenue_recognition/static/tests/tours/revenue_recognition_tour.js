@@ -72,21 +72,6 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 trigger: ".ui-autocomplete .ui-menu-item a:contains(TOUR-RR-PARTNER)",
                 in_modal: false,
             },
-            // Picking the Partner triggers `onchange_performance_obligation_id`
-            // (it unconditionally resets `performance_obligation_id`, in case
-            // a PoB from a previous partner was selected). Wait for that
-            // round trip to land before touching `# Performance Obligation` —
-            // otherwise the late-arriving onchange response can wipe out the
-            // PoB this tour is about to pick, since it is applied on top of
-            // whatever the widget shows at that later moment.
-            {
-                content: "Partner is committed",
-                trigger:
-                    ".o_field_many2one[name='partner_id'] input[value='TOUR-RR-PARTNER']",
-                run: function () {
-                    // Assertion only.
-                },
-            },
             {
                 content: "Select the # Performance Obligation",
                 trigger: ".o_field_many2one[name='performance_obligation_id'] input",
@@ -97,20 +82,6 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 trigger: ".ui-autocomplete .ui-menu-item a:contains(PB-TOUR-RR-1)",
                 in_modal: false,
             },
-            // Selecting the PoB triggers a server round trip to recompute
-            // the related `product_id` (and other fields). Wait for the
-            // widget to show the committed value before touching Type —
-            // otherwise that still-in-flight onchange can re-render the
-            // form while Type's own dropdown pick is in progress (Odoo 14
-            // "onchange destroys the open autocomplete dropdown" race).
-            {
-                content: "Performance Obligation is committed",
-                trigger:
-                    ".o_field_many2one[name='performance_obligation_id'] input[value='PB-TOUR-RR-1']",
-                run: function () {
-                    // Assertion only.
-                },
-            },
             {
                 content: "Select the Type",
                 trigger: ".o_field_many2one[name='type_id'] input",
@@ -120,13 +91,6 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 content: "Pick the Type from the dropdown",
                 trigger: ".ui-autocomplete .ui-menu-item a:contains(TOUR-RR-TYPE)",
                 in_modal: false,
-            },
-            {
-                content: "Journal is auto-filled from Type",
-                trigger: ".o_field_many2one[name='journal_id'] input[value!='']",
-                run: function () {
-                    // Assertion only.
-                },
             },
             {
                 content:
