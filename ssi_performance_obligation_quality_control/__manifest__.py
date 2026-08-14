@@ -11,8 +11,11 @@
     "depends": [
         "ssi_revenue_recognition",
         "ssi_quality_control",
+        "web_tour",
     ],
-    "data": [],
+    "data": [
+        "views/assets.xml",
+    ],
     "demo": [],
     "images": [],
 }

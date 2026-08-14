@@ -19,6 +19,11 @@ To install this module, you need to:
 5.  Search For *Performance Obligation + Quality Control Integration*
 6.  Install the module
 
+Work Instruction
+================
+
+* `Performance Obligation <docs/performance_obligation/index.html>`_
+
 Bug Tracker
 ===========
 
