@@ -13,29 +13,30 @@ When this module is installed, the form shows one more field in the header:
   `operating_unit.group_multi_operating_unit`). It is a stored `related` field that
   mirrors **Performance Obligation > Operating Unit**, keeping the Performance
   Obligation and every Revenue Recognition built from it on the same operating unit
-  instead of falling back to the acting user's own default operating unit. This module
-  places no read-only restriction of its own on the field: it stays an editable field in
-  every status of the record — **Draft**, **Waiting for Approval**, and **Done** alike.
-  Because the field it mirrors is not itself read-only, this field keeps an active
-  inverse — see `## Additional Post-Condition` below for what changing it here actually
-  does.
+  instead of falling back to the acting user's own default operating unit. This field
+  does not declare `readonly=False`, so — like every `related` field in Odoo unless it
+  explicitly opts out — it is **read-only** on this record in every status: **Draft**,
+  **Waiting for Approval**, and **Done** alike. It cannot be typed into or changed
+  directly here; it only ever displays whatever value the linked **Performance
+  Obligation** currently carries. See `## Additional Post-Condition` below for how that
+  value is set.
 
 ## Modified — Record Visibility
 
 - The Revenue Recognition list is filtered by operating unit (record rule
   `revenue_recognition_rule_ou`): a user only sees records whose **Operating Unit** is
-  one of the operating units assigned to them. Changing the field can therefore make a
-  record disappear from, or reappear in, the current user's list. This is not a Flow
-  step.
+  one of the operating units assigned to them. Because the field is read-only here, a
+  record can only move between lists indirectly, by someone changing the **Operating
+  Unit** on its linked **Performance Obligation** (see
+  `docs/performance_obligation/01-create.md` in this module). This is not a Flow step.
 
 ## Additional Post-Condition
 
-- Because **Operating Unit** here is a writable `related` field mirroring the linked
-  Performance Obligation, changing it on this Revenue Recognition record writes the new
-  value back onto that **Performance Obligation**'s own **Operating Unit** field — and
-  from there it cascades to every other Acceptance and Revenue Recognition record
-  sharing that same Performance Obligation. See
-  `docs/performance_obligation/01-create.md` in this module.
+- **Operating Unit** on this record is not set here — it is always the mirror of the
+  linked **Performance Obligation**'s own **Operating Unit** field, and updates
+  automatically whenever that source field changes. To change which operating unit a
+  Revenue Recognition belongs to, change it on the **Performance Obligation** instead;
+  see `docs/performance_obligation/01-create.md` in this module.
 - When this record reaches **Done**, it creates and posts an `account.move` accounting
   entry (see the base module's `docs/revenue_recognition/05-approve.md`). This module
   does not carry **Operating Unit** onto that accounting entry — the created move is not

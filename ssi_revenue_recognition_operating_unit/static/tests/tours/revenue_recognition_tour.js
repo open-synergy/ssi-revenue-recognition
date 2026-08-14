@@ -11,9 +11,11 @@ odoo.define(
         // IK: docs/revenue_recognition/01-create.md (delta of
         // ssi_revenue_recognition's own 01-create.md). Delta-only tour: open
         // the menu, open a new form, assert the Operating Unit field is
-        // shown and can be filled in, then stop — it does not continue to
-        // Save/Confirm/Approve, which are already covered by the base
-        // module's own create tour.
+        // shown and read-only (it mirrors the linked Performance
+        // Obligation and has no `readonly=False`, so it cannot be typed
+        // into here), then stop — it does not continue to Save/Confirm/
+        // Approve, which are already covered by the base module's own
+        // create tour.
         tour.register(
             "ssi_revenue_recognition_operating_unit_revenue_recognition_create",
             {test: true, url: "/web"},
@@ -58,8 +60,8 @@ odoo.define(
                     },
                 },
 
-                // Additional Fields — Operating Unit is shown in the header
-                // and can be filled in.
+                // Additional Fields — Operating Unit is shown in the header,
+                // read-only (it mirrors the linked Performance Obligation).
                 {
                     content: "Operating Unit field is shown on the form",
                     trigger: ".o_field_widget[name='operating_unit_id']",
@@ -69,23 +71,16 @@ odoo.define(
                     },
                 },
                 {
-                    content: "Open the Operating Unit dropdown",
-                    trigger: ".o_field_many2one[name='operating_unit_id'] input",
-                    run: "text Main Operating Unit",
-                },
-                {
-                    content: "Pick Main Operating Unit from the dropdown",
+                    content:
+                        "Operating Unit has no input to type into — it is read-only, mirroring the linked Performance Obligation",
                     trigger:
-                        ".ui-autocomplete .ui-menu-item a:contains(Main Operating Unit)",
-                    in_modal: false,
-                },
-                {
-                    content: "Operating Unit is filled in on the form",
-                    trigger:
-                        ".o_field_many2one[name='operating_unit_id'] input[value='Main Operating Unit']",
+                        ".o_field_widget[name='operating_unit_id']:not(:has(input))",
                     run: function () {
                         // Assertion only. The tour stops here — Save/
-                        // Confirm/Approve are out of scope for this delta.
+                        // Confirm/Approve are out of scope for this delta,
+                        // and Operating Unit itself is only ever changed
+                        // through the linked Performance Obligation (see
+                        // docs/performance_obligation/01-create.md).
                     },
                 },
             ]
