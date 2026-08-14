@@ -25,7 +25,12 @@
 
 1. Open the **Cost Accounting > Revenue Recognition > Revenue Recognitions** menu.
 2. Click the **New** button. **(14.0: "Create")**
-3. Fill in the required fields:
+3. Fill in the required fields, in this order — **Partner** and **# Performance
+   Obligation** first, so **Product** (via the selected PoB) is already known when
+   **Type** is filled in and its Unearned Income/Income Account lookup runs:
+   - **Partner**: Select the customer.
+   - **# Performance Obligation**: Select the PoB (filtered to the selected **Partner**)
+     this recognition is for.
    - **Type**: Select the `revenue_recognition_type` configuring the journal and account
      usages for this document.
    - **Journal**: Automatically filled from **Type**. Change if needed.
@@ -33,9 +38,6 @@
      (via the product's fiscal position). Change if needed.
    - **Income Account**: Automatically filled from **Type** and **Product**. Change if
      needed.
-   - **Partner**: Select the customer.
-   - **# Performance Obligation**: Select the PoB (filtered to the selected **Partner**)
-     this recognition is for.
    - **Date**: Enter the recognition date.
    - **Date Start** / **Date End**: Enter the period of WIP transactions to consider.
 4. On the **Accounting** tab, the **Account Mappings** grid is automatically rebuilt

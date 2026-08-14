@@ -215,12 +215,28 @@ odoo.define("ssi_revenue_recognition.performance_obligation_acceptance_tour", fu
                 },
             },
 
-            // Flow 5 — Click OK to confirm. Odoo returns straight to the
-            // list after a successful delete (no back button to click).
+            // Flow 5 — Click OK to confirm.
             {
                 content: "Confirm deletion",
                 trigger: ".modal-footer button.btn-primary",
                 in_modal: true,
+            },
+            // Odoo sometimes leaves a clickable back button on the
+            // breadcrumb after a delete, and sometimes returns straight
+            // to the list on its own. Click the back button only if one
+            // is actually there.
+            {
+                content: "Return to the list",
+                trigger:
+                    ".breadcrumb-item.o_back_button a:contains(Performance Obligation Acceptances), .o_list_view:not(:has(.o_data_row:contains(POA-TOUR-DELETE)))",
+                run: function () {
+                    var $back = $(
+                        ".breadcrumb-item.o_back_button a:contains(Performance Obligation Acceptances)"
+                    );
+                    if ($back.length) {
+                        $back[0].click();
+                    }
+                },
             },
 
             // Post-Condition — The record is permanently removed.

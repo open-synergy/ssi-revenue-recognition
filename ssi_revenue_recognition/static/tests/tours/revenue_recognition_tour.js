@@ -57,11 +57,34 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 },
             },
 
-            // Flow 3 — Fill in the required fields.
+            // Flow 3 — Fill in the required fields. Partner and # Performance
+            // Obligation are selected before Type so that `product_id`
+            // (related through the PoB) is already resolved when Type's
+            // onchange looks up the Unearned Income/Income Account.
+            {
+                content: "Select the Partner",
+                trigger: ".o_field_many2one[name='partner_id'] input",
+                extra_trigger: ".o_form_view.o_form_editable",
+                run: "text TOUR-RR-PARTNER",
+            },
+            {
+                content: "Pick the Partner from the dropdown",
+                trigger: ".ui-autocomplete .ui-menu-item a:contains(TOUR-RR-PARTNER)",
+                in_modal: false,
+            },
+            {
+                content: "Select the # Performance Obligation",
+                trigger: ".o_field_many2one[name='performance_obligation_id'] input",
+                run: "text PB-TOUR-RR-1",
+            },
+            {
+                content: "Pick the PoB from the dropdown",
+                trigger: ".ui-autocomplete .ui-menu-item a:contains(PB-TOUR-RR-1)",
+                in_modal: false,
+            },
             {
                 content: "Select the Type",
                 trigger: ".o_field_many2one[name='type_id'] input",
-                extra_trigger: ".o_form_view.o_form_editable",
                 run: "text TOUR-RR-TYPE",
             },
             {
@@ -78,7 +101,7 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
             },
             {
                 content:
-                    "Fill in the Unearned Income Account (no Product is set, so it was not auto-resolved)",
+                    "Fill in the Unearned Income Account (no account mapping is configured for the product, so it was not auto-resolved)",
                 trigger: ".o_field_many2one[name='unearned_income_account_id'] input",
                 run: "text TOUR RR Unearned Income Account",
             },
@@ -90,7 +113,7 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
             },
             {
                 content:
-                    "Fill in the Income Account (no Product is set, so it was not auto-resolved)",
+                    "Fill in the Income Account (no account mapping is configured for the product, so it was not auto-resolved)",
                 trigger: ".o_field_many2one[name='income_account_id'] input",
                 run: "text TOUR RR Income Account",
             },
@@ -98,26 +121,6 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 content: "Pick the Income Account from the dropdown",
                 trigger:
                     ".ui-autocomplete .ui-menu-item a:contains(TOUR RR Income Account)",
-                in_modal: false,
-            },
-            {
-                content: "Select the Partner",
-                trigger: ".o_field_many2one[name='partner_id'] input",
-                run: "text TOUR-RR-PARTNER",
-            },
-            {
-                content: "Pick the Partner from the dropdown",
-                trigger: ".ui-autocomplete .ui-menu-item a:contains(TOUR-RR-PARTNER)",
-                in_modal: false,
-            },
-            {
-                content: "Select the # Performance Obligation",
-                trigger: ".o_field_many2one[name='performance_obligation_id'] input",
-                run: "text PB-TOUR-RR-1",
-            },
-            {
-                content: "Pick the PoB from the dropdown",
-                trigger: ".ui-autocomplete .ui-menu-item a:contains(PB-TOUR-RR-1)",
                 in_modal: false,
             },
             {
@@ -267,8 +270,23 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 trigger: ".modal-footer button.btn-primary",
                 in_modal: true,
             },
-            // Odoo returns straight to the list after a successful
-            // delete (no back button to click).
+            // Odoo sometimes leaves a clickable back button on the
+            // breadcrumb after a delete, and sometimes returns straight
+            // to the list on its own. Click the back button only if one
+            // is actually there.
+            {
+                content: "Return to the list",
+                trigger:
+                    ".breadcrumb-item.o_back_button a:contains(Revenue Recognitions), .o_list_view:not(:has(.o_data_row:contains(RR-TOUR-DELETE)))",
+                run: function () {
+                    var $back = $(
+                        ".breadcrumb-item.o_back_button a:contains(Revenue Recognitions)"
+                    );
+                    if ($back.length) {
+                        $back[0].click();
+                    }
+                },
+            },
             {
                 content: "The record no longer appears in the list",
                 trigger: ".o_list_view:not(:has(.o_data_row:contains(RR-TOUR-DELETE)))",

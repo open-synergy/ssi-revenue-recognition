@@ -36,6 +36,14 @@ class TestUiRevenueRecognition(HttpSavepointCase):
         source_aa = cls.env["account.analytic.account"].create(
             {"name": "TOUR-RR-SOURCE-AA", "partner_id": cls.partner.id}
         )
+        # `product_id` on the PoB must be set: `revenue_recognition.product_id`
+        # is a related field through `performance_obligation_id`, and the
+        # `type_id`-triggered onchanges resolving the Unearned Income/Income
+        # Account call `self.product_id._get_product_account(...)`, which
+        # requires a singleton. The create tour selects `# Performance
+        # Obligation` before `Type` precisely so this related `product_id`
+        # is already populated by the time those onchanges run.
+        product = cls.env["product.product"].create({"name": "TOUR RR Product"})
         # Background data: an Open PoB with a Done acceptance, so the
         # `# Performance Obligation` dropdown and the `Populate` action have
         # something to work with. Neither model's own workflow is under
@@ -46,6 +54,7 @@ class TestUiRevenueRecognition(HttpSavepointCase):
                 "source_analytic_account_id": source_aa.id,
                 "user_id": cls.admin.id,
                 "name": "PB-TOUR-RR-1",
+                "product_id": product.id,
             }
         )
         cls.pob.write({"state": "open"})
