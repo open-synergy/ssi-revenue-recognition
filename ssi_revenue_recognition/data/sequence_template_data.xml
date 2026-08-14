@@ -79,7 +79,13 @@
             name="sequence_field_id"
             search="[('model_id.model','=','revenue_recognition_type'),('name','=','name')]"
         />
-    <!-- Master data, no date field to range the sequence by. -->
+    <!-- Master data has no date field of its own; range by create_date,
+         matching the pattern used by other mixin.master_data sequences
+         (e.g. ssi_task_code, ssi_financial_budget). -->
+    <field
+            name="date_field_id"
+            search="[('model_id.model','=','revenue_recognition_type'),('name','=','create_date')]"
+        />
     <field name="computation_method">use_python</field>
     <field name="python_code">result=True</field>
     <field name="sequence_id" ref="rrt_sequence" />
