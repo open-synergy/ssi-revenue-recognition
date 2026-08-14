@@ -80,9 +80,13 @@ odoo.define(
                     in_modal: false,
                 },
                 {
+                    // `operating.unit.name_get()` prefixes the code, e.g.
+                    // "[OU1] Main Operating Unit" — match on a substring of
+                    // the input's value instead of the exact display name,
+                    // so the tour does not depend on that code.
                     content: "Operating Unit is filled in on the form",
                     trigger:
-                        ".o_field_many2one[name='operating_unit_id'] input[value='Main Operating Unit']",
+                        ".o_field_many2one[name='operating_unit_id'] input[value*='Main Operating Unit']",
                     run: function () {
                         // Assertion only. The tour stops here — Save/
                         // Confirm/Approve are out of scope for this delta.
