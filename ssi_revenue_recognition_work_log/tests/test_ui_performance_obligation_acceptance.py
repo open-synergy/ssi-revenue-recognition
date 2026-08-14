@@ -20,7 +20,9 @@ class TestUiPerformanceObligationAcceptance(HttpSavepointCase):
 
     @classmethod
     def setUpClass(cls):
-        """Create the PoB and a Done work log the tour can pick."""
+        """Create the PoB, an Open timesheet, and a Done work log the
+        tour can pick.
+        """
         super().setUpClass()
         cls.admin = cls.env.ref("base.user_admin")
         # Pre-Condition: create needs `*_user_group`.
@@ -52,12 +54,29 @@ class TestUiPerformanceObligationAcceptance(HttpSavepointCase):
         )
         cls.pob.write({"state": "open"})
 
+        # Background data: an Open `hr.timesheet` covering the work log's
+        # date, so the work log passes `_check_sheet_id`
+        # (`ssi_work_log_mixin`'s `_compute_sheet_id` only finds a sheet
+        # when one exists for the same employee with a date range that
+        # covers the log's date and status Open) — same prerequisite the
+        # YAML scenarios in
+        # test_data_performance_obligation_acceptance.yaml set up before
+        # creating a work log.
+        employee = cls.env["hr.employee"].create({"name": "TOUR-POBAWL-EMPLOYEE"})
+        timesheet = cls.env["hr.timesheet"].create(
+            {
+                "employee_id": employee.id,
+                "date_start": "2026-01-01",
+                "date_end": "2026-01-31",
+            }
+        )
+        timesheet.action_open()
+
         # Background data: one Done work log booked against the PoB's
         # analytic account, dated inside the window the tour will type
         # into Date Start/Date End (2026-01-01..2026-01-31), so
         # `allowed_work_log_ids` has exactly this one candidate to
         # offer when the tour opens the Fullfilment Work Logs tab.
-        employee = cls.env["hr.employee"].create({"name": "TOUR-POBAWL-EMPLOYEE"})
         ir_model = cls.env["ir.model"].search([("model", "=", "res.partner")], limit=1)
         work_log = cls.env["hr.work_log"].create(
             {
