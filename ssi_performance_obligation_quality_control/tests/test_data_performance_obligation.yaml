@@ -1,0 +1,117 @@
+scenarios:
+  - name: "QC worksheet surface is present but empty on a new PoB"
+    steps:
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_1"
+        values:
+          name: "Test Source AA - QC Surface 1"
+
+      - step: "Create draft PoB pointing at the source analytic account"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_1"
+        values:
+          title: "Test PoB - QC Surface 1"
+          source_analytic_account_id: "REC: source_aa_1.id"
+
+      - step: "qc_worksheet_ids contributed by the mixin is empty"
+        action: "assert"
+        target: "pob_1"
+        asserts:
+          qc_worksheet_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 0
+
+      - step: "qc_worksheet_set_id contributed by the mixin is unset"
+        action: "assert"
+        target: "pob_1"
+        asserts:
+          qc_worksheet_set_id:
+            type: "value"
+            operator: "is_falsy"
+
+  - name: "Approval flow reaches open with the QC mixin installed"
+    steps:
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_2"
+        values:
+          name: "Test Source AA - QC Open Flow 2"
+
+      - step: "Create draft PoB as admin (owns the record for as_user steps)"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_2"
+        as_user: "base.user_admin"
+        values:
+          title: "Test PoB - QC Open Flow 2"
+          source_analytic_account_id: "REC: source_aa_2.id"
+
+      - step: "Confirm the PoB"
+        action: "call"
+        target: "pob_2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04) -- tanpa
+      # step ini approve_ok bisa terbaca dari cache yang diisi
+      # action_confirm, saat approval.approval belum ada.
+      - step: "PoB is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "pob_2"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the PoB (auto-runs action_open via _after_approved_method)"
+        action: "call"
+        target: "pob_2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+  - name: "action_open is still rejected on a draft PoB with the QC mixin installed"
+    steps:
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_3"
+        values:
+          name: "Test Source AA - QC Open Guard 3"
+
+      - step: "Create draft PoB pointing at the source analytic account"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_3"
+        values:
+          title: "Test PoB - QC Open Guard 3"
+          source_analytic_account_id: "REC: source_aa_3.id"
+
+      - step: "action_open on a draft PoB is rejected"
+        action: "call"
+        target: "pob_3"
+        method: "action_open"
+        expect_error:
+          type: "UserError"
+          message_contains: "Document cannot be opened from its current state"
+
+      - step: "State stays draft"
+        action: "assert"
+        target: "pob_3"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
