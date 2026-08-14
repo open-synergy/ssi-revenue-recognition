@@ -66,13 +66,12 @@ class PerformanceObligation(models.Model):
         ``_01_create_project``.
 
         :return: dict of ``project.project`` values (``name``,
-            ``code``, ``analytic_account_id``, ``partner_id``,
-            ``date_start``, ``date``)
+            ``analytic_account_id``, ``partner_id``, ``date_start``,
+            ``date``)
         """
         self.ensure_one()
         return {
             "name": self.title,
-            "code": self.name,
             "analytic_account_id": self.analytic_account_id.id,
             "partner_id": self.partner_id.id,
             "date_start": self.date_start,

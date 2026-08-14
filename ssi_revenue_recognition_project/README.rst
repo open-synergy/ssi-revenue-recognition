@@ -20,6 +20,11 @@ To install this module, you need to:
 5.  Search For *Revenue Recognition + Project Integration*
 6.  Install the module
 
+Work Instruction
+================
+
+* `Approve Performance Obligation <docs/performance_obligation/05-approve.html>`_
+
 Credits
 =======
 
