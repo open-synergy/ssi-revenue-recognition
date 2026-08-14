@@ -216,22 +216,14 @@ odoo.define("ssi_revenue_recognition.performance_obligation_tour", function (req
                 trigger: ".modal-footer button.btn-primary",
                 in_modal: true,
             },
-            // Odoo sometimes leaves a clickable back button on the
-            // breadcrumb after a delete, and sometimes returns straight
-            // to the list on its own. Click the back button only if one
-            // is actually there.
+            // After delete, 14.0 can show the NEXT record in the list's
+            // recordset instead of returning to the list on its own — the
+            // breadcrumb still names the action either way, so click it
+            // unconditionally to get back to the list.
             {
-                content: "Return to the list",
+                content: "Click the Performance Obligations breadcrumb",
                 trigger:
-                    ".breadcrumb-item.o_back_button a:contains(Performance Obligations), .o_list_view:not(:has(.o_data_row:contains(TOUR-POB-DELETE)))",
-                run: function () {
-                    var $back = $(
-                        ".breadcrumb-item.o_back_button a:contains(Performance Obligations)"
-                    );
-                    if ($back.length) {
-                        $back[0].click();
-                    }
-                },
+                    ".breadcrumb-item.o_back_button a:contains(Performance Obligations)",
             },
 
             // Post-Condition — The record is permanently removed.

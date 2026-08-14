@@ -103,8 +103,19 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_type_tour", function (
             // Flow 5 — Click Generate Code to assign a document code.
             {
                 content: "Click Generate Code",
-                trigger: ".o_form_view button[name='action_generate_code']",
+                trigger: ".o_form_view button[name='action_generate_code']:enabled",
                 extra_trigger: ".o_form_view.o_form_editable",
+            },
+            // `action_generate_code` is a `type="object"` button: 14.0
+            // disables it synchronously on click and only re-enables it
+            // once its full RPC + re-render cycle is done. Waiting for it
+            // to become `:enabled` again avoids Save racing that cycle.
+            {
+                content: "Generate Code finished",
+                trigger: ".o_form_view button[name='action_generate_code']:enabled",
+                run: function () {
+                    // Assertion only.
+                },
             },
 
             // Flow 6 — Click Save.

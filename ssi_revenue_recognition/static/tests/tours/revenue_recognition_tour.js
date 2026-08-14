@@ -82,6 +82,20 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 trigger: ".ui-autocomplete .ui-menu-item a:contains(PB-TOUR-RR-1)",
                 in_modal: false,
             },
+            // Selecting the PoB triggers a server round trip to recompute
+            // the related `product_id` (and other fields). Wait for the
+            // widget to show the committed value before touching Type —
+            // otherwise that still-in-flight onchange can re-render the
+            // form while Type's own dropdown pick is in progress (Odoo 14
+            // "onchange destroys the open autocomplete dropdown" race).
+            {
+                content: "Performance Obligation is committed",
+                trigger:
+                    ".o_field_many2one[name='performance_obligation_id'] input[value='PB-TOUR-RR-1']",
+                run: function () {
+                    // Assertion only.
+                },
+            },
             {
                 content: "Select the Type",
                 trigger: ".o_field_many2one[name='type_id'] input",
@@ -144,6 +158,17 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 content: "Click Populate",
                 trigger: "button[name='action_populate']:enabled",
                 extra_trigger: ".o_form_view.o_form_editable",
+            },
+            // `action_populate` is a `type="object"` button: 14.0 disables
+            // it synchronously on click and only re-enables it once its
+            // full RPC + re-render cycle is done. Waiting for it to become
+            // `:enabled` again avoids Save racing that cycle.
+            {
+                content: "Populate finished",
+                trigger: "button[name='action_populate']:enabled",
+                run: function () {
+                    // Assertion only.
+                },
             },
 
             // Flow 6 — Click Save.
@@ -215,6 +240,17 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 trigger: "button[name='action_populate']:enabled",
                 extra_trigger: ".o_form_view.o_form_editable",
             },
+            // `action_populate` is a `type="object"` button: 14.0 disables
+            // it synchronously on click and only re-enables it once its
+            // full RPC + re-render cycle is done. Waiting for it to become
+            // `:enabled` again avoids Save racing that cycle.
+            {
+                content: "Populate finished",
+                trigger: "button[name='action_populate']:enabled",
+                run: function () {
+                    // Assertion only.
+                },
+            },
 
             // Flow 6 — Click Save.
             {
@@ -270,22 +306,14 @@ odoo.define("ssi_revenue_recognition.revenue_recognition_tour", function (requir
                 trigger: ".modal-footer button.btn-primary",
                 in_modal: true,
             },
-            // Odoo sometimes leaves a clickable back button on the
-            // breadcrumb after a delete, and sometimes returns straight
-            // to the list on its own. Click the back button only if one
-            // is actually there.
+            // After delete, 14.0 can show the NEXT record in the list's
+            // recordset instead of returning to the list on its own — the
+            // breadcrumb still names the action either way, so click it
+            // unconditionally to get back to the list.
             {
-                content: "Return to the list",
+                content: "Click the Revenue Recognitions breadcrumb",
                 trigger:
-                    ".breadcrumb-item.o_back_button a:contains(Revenue Recognitions), .o_list_view:not(:has(.o_data_row:contains(RR-TOUR-DELETE)))",
-                run: function () {
-                    var $back = $(
-                        ".breadcrumb-item.o_back_button a:contains(Revenue Recognitions)"
-                    );
-                    if ($back.length) {
-                        $back[0].click();
-                    }
-                },
+                    ".breadcrumb-item.o_back_button a:contains(Revenue Recognitions)",
             },
             {
                 content: "The record no longer appears in the list",
