@@ -17,6 +17,9 @@ class RevenueRecognitionType(models.Model):
     _inherit = ["mixin.master_data"]
     _description = "Revenue Recognition Type"
 
+    code = fields.Char(
+        default="/",
+    )
     journal_id = fields.Many2one(
         string="Journal",
         comodel_name="account.journal",

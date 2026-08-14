@@ -20,6 +20,14 @@ To install this module, you need to:
 5.  Search For *Revenue Recognition*
 6.  Install the module
 
+Work Instruction
+================
+
+* `Revenue Recognition Type <docs/revenue_recognition_type/index.html>`_
+* `Performance Obligation <docs/performance_obligation/index.html>`_
+* `Performance Obligation Acceptance <docs/performance_obligation_acceptance/index.html>`_
+* `Revenue Recognition <docs/revenue_recognition/index.html>`_
+
 Credits
 =======
 
