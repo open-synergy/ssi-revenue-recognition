@@ -410,3 +410,135 @@ scenarios:
           qty_work_log:
             type: "value"
             expected: 0.0
+
+  - name: "Selecting a work log outside allowed_work_log_ids is rejected"
+    steps:
+      - step: "Create source analytic account of the contract"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_4"
+        values:
+          name: "Test Source AA - POA WL Constrain 4"
+
+      - step: "Create the PoB's own analytic account"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "pob_aa_4"
+        values:
+          name: "Test PoB AA - POA WL Constrain 4"
+
+      - step: "Create an unrelated analytic account (another PoB's)"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "other_aa_4"
+        values:
+          name: "Test Other AA - POA WL Constrain 4"
+
+      - step: "Create the PoB on its own analytic account"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_4"
+        values:
+          title: "Test PoB - POA WL Constrain 4"
+          source_analytic_account_id: "REC: source_aa_4.id"
+          analytic_account_id: "REC: pob_aa_4.id"
+
+      - step: "Create the customer partner"
+        action: "create"
+        model: "res.partner"
+        save_as: "partner_4"
+        values:
+          name: "Test Customer - POA WL Constrain 4"
+
+      - step: "Create the acceptance's date window"
+        action: "create"
+        model: "performance_obligation_acceptance"
+        save_as: "poa_4"
+        values:
+          partner_id: "REC: partner_4.id"
+          performance_obligation_id: "REC: pob_4.id"
+          date: 2024-04-30
+          date_start: 2024-04-01
+          date_end: 2024-04-30
+
+      - step: "Create employee who will log the work"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_4"
+        values:
+          name: "Test Employee - POA WL Constrain 4"
+
+      - step: "Open a timesheet covering the acceptance's date window"
+        action: "create"
+        model: "hr.timesheet"
+        save_as: "timesheet_4"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_4.id"
+          date_start: 2024-04-01
+          date_end: 2024-04-30
+
+      - step: "Confirm the timesheet is open"
+        action: "call"
+        target: "timesheet_4"
+        method: "action_open"
+        as_user: "base.user_admin"
+
+      - step: "Get ir.model for res.partner (arbitrary work object type)"
+        action: "search"
+        model: "ir.model"
+        domain: [["model", "=", "res.partner"]]
+        save_as: "ir_model_4"
+        limit: 1
+
+      - step: "Work log outside AA - in window, done, but wrong AA"
+        action: "create"
+        model: "hr.work_log"
+        save_as: "wl_disallowed_4"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "REC: employee_4.id"
+          description: "Disallowed work log (wrong AA)"
+          model_id: "REC: ir_model_4.id"
+          work_object_id: "REC: partner_4.id"
+          date: 2024-04-10
+          amount: 3.0
+          analytic_account_id: "REC: other_aa_4.id"
+
+      - step: "Confirm the disallowed work log"
+        action: "call"
+        target: "wl_disallowed_4"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Approve the disallowed work log (moves it to done)"
+        action: "call"
+        target: "wl_disallowed_4"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Picking a work log outside allowed_work_log_ids is rejected"
+        action: "write"
+        target: "poa_4"
+        expect_error:
+          type: "ValidationError"
+          message_contains: "Disallowed work log (wrong AA)"
+        values:
+          poa_work_log_ids: [[6, 0, ["REC: wl_disallowed_4.id"]]]
+
+      - step: "Rejected write leaves poa_work_log_ids empty"
+        action: "assert"
+        target: "poa_4"
+        asserts:
+          poa_work_log_ids:
+            type: "m2m"
+            check: "count"
+            expected_count: 0
