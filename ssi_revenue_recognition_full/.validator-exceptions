@@ -1,0 +1,25 @@
+# Accepted deviations for a deprecated, non-installable module.
+# Kept as an archive only; the replacement is ssi_revenue_recognition.
+module model-transaksional-punya-insert-form-element-get-policy-fie|revenue_recognition_full: _insert_form_element() tidak ada -- deprecated and non-installable module, kept as archive
+module field-one2many-ber-inline-tree-juga-punya-inline-form|views/revenue_recognition_full_type_views.xml revenue_recognition_full_type.account_ids -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full.py RevenueRecognitionFull -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full.py onchange_policy_template_id -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full.py onchange_account_ids -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full.py action_populate -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full.py _populate -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full.py _prepare_move_line_domain -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full.py _compute_balance -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full.py _create_move -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full.py _prepare_account_move -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full.py _20_cancel_move -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full_account.py RevenueRecognitionFullAccount -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full_account.py _create_move_line -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full_account.py _reconcile_move_line -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full_account.py _unreconcile_move_line -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full_account.py _prepare_credit_move_line -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full_account.py _prepare_debit_move_line -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full_account.py _prepare_move_line -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full_type.py RevenueRecognitionFullType -- deprecated and non-installable module, kept as archive
+module setiap-class-method-punya-docstring|models/revenue_recognition_full_type_account.py RevenueRecognitionFullTypeAccount -- deprecated and non-installable module, kept as archive
+ik modul-tak-punya-direktori-docs-belum-ada-ik-sama-sekali|docs/ -- deprecated and non-installable module, kept as archive
+unit-test modul-yang-mendefinisikan-model-punya-tests|tests-dir-hilang -- deprecated and non-installable module, kept as archive
