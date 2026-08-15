@@ -12,8 +12,10 @@ class TestPerformanceObligationAcceptance(YamlTransactionCase):
     """Scenario tests for the work log bridge on the acceptance model.
 
     Covers ``_compute_allowed_work_log_ids`` (the curated selection of
-    ``hr.work_log`` candidates) and ``_compute_qty_work_log`` (the
-    quantity summed from the logs actually picked).
+    ``hr.work_log`` candidates), ``_compute_qty_work_log`` (the
+    quantity summed from the logs actually picked), and
+    ``_check_poa_work_log_ids`` (the server-side rejection of any
+    work log picked outside ``allowed_work_log_ids``).
     """
 
     def test_performance_obligation_acceptance(self):

@@ -1,7 +1,8 @@
 # Copyright 2024 OpenSynergy Indonesia
 # Copyright 2024 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl-3.0-standalone.html).
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class PerformanceObligationAcceptance(models.Model):
@@ -88,3 +89,42 @@ class PerformanceObligationAcceptance(models.Model):
                 result += work_log.amount
             record.qty_work_log = result
             record._compute_qty_fulfilled()
+
+    @api.constrains(
+        "poa_work_log_ids",
+    )
+    def _check_poa_work_log_ids(self):
+        """Reject work logs picked outside ``allowed_work_log_ids``.
+
+        The ``domain=`` restriction on the ``poa_work_log_ids`` widget
+        (``views/performance_obligation_acceptance_views.xml``) only
+        filters what the UI shows — it does not stop ``write()``/
+        ``create()`` performed through the ORM or RPC directly. This
+        constraint re-checks the same membership on the server, so a
+        work log outside the acceptance's ``allowed_work_log_ids``
+        (wrong analytic account, date window, or not in ``done``
+        state) can never end up counted in ``qty_work_log``.
+
+        :raises ValidationError: when ``poa_work_log_ids`` contains at
+            least one work log absent from ``allowed_work_log_ids``.
+        """
+        for record in self:
+            disallowed = record.poa_work_log_ids - record.allowed_work_log_ids
+            for work_log in disallowed:
+                error_message = (
+                    _(
+                        """
+Context: Select work log for %s
+Database ID: %s
+Problem: Work log "%s" is not part of the allowed work logs
+Solution: Select work logs within the acceptance's date window and
+matching the performance obligation's analytic account
+"""
+                    )
+                    % (
+                        record._description.lower(),
+                        record.id,
+                        work_log.description,
+                    )
+                )
+                raise ValidationError(error_message)
