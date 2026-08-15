@@ -1,0 +1,147 @@
+options:
+  auto_refresh: true
+
+setup:
+  steps:
+    - step: "Create the shared partner for both operating units"
+      action: "create"
+      model: "res.partner"
+      save_as: "ou_partner"
+      values:
+        name: "EVAL: 'Test RR OU Partner %d' % env['res.partner'].search_count([])"
+        is_company: true
+
+    - step: "Create the customer partner of the recognition"
+      action: "create"
+      model: "res.partner"
+      save_as: "customer"
+      values:
+        name: "EVAL: 'Test RR OU Customer %d' % env['res.partner'].search_count([])"
+
+    - step: "Create the second operating unit (assigned to the PoB under test)"
+      action: "create"
+      model: "operating.unit"
+      save_as: "ou_2"
+      values:
+        name: "EVAL: 'Test RR OU 2 %d' % env['operating.unit'].search_count([])"
+        code: "EVAL: 'RROU2%d' % env['operating.unit'].search_count([])"
+        partner_id: "REC: ou_partner.id"
+
+    - step: "Create the source analytic account of the contract"
+      action: "create"
+      model: "account.analytic.account"
+      save_as: "source_aa"
+      values:
+        name:
+          "EVAL: 'Test RR OU Source AA %d' %
+          env['account.analytic.account'].search_count([])"
+
+    - step: "Create the Performance Obligation on the second operating unit"
+      action: "create"
+      model: "performance_obligation"
+      save_as: "pob"
+      values:
+        title: "Test PoB - RR OU Parent"
+        source_analytic_account_id: "REC: source_aa.id"
+        operating_unit_id: "REC: ou_2.id"
+
+    - step: "Create the type's journal"
+      action: "create"
+      model: "account.journal"
+      save_as: "type_journal"
+      values:
+        name:
+          "EVAL: 'Test RR OU Type Journal %d' % env['account.journal'].search_count([])"
+        code: "EVAL: 'RROUTJ%d' % env['account.journal'].search_count([])"
+        type: "general"
+
+    - step: "Create the unearned income usage"
+      action: "create"
+      model: "product.usage_type"
+      save_as: "usage_unearned"
+      values:
+        name:
+          "EVAL: 'Test RR OU Unearned Usage %d' %
+          env['product.usage_type'].search_count([])"
+        code: "EVAL: 'RROUUU%d' % env['product.usage_type'].search_count([])"
+
+    - step: "Create the income usage"
+      action: "create"
+      model: "product.usage_type"
+      save_as: "usage_income"
+      values:
+        name:
+          "EVAL: 'Test RR OU Income Usage %d' %
+          env['product.usage_type'].search_count([])"
+        code: "EVAL: 'RROUIU%d' % env['product.usage_type'].search_count([])"
+
+    - step: "Create the recognition type"
+      action: "create"
+      model: "revenue_recognition_type"
+      save_as: "rrt"
+      values:
+        name:
+          "EVAL: 'Test RR OU Type %d' % env['revenue_recognition_type'].search_count([])"
+        code: "EVAL: 'RROUT%d' % env['revenue_recognition_type'].search_count([])"
+        journal_id: "REC: type_journal.id"
+        unearned_income_usage_id: "REC: usage_unearned.id"
+        income_usage_id: "REC: usage_income.id"
+
+    - step: "Create the recognition journal"
+      action: "create"
+      model: "account.journal"
+      save_as: "journal"
+      values:
+        name: "EVAL: 'Test RR OU Journal %d' % env['account.journal'].search_count([])"
+        code: "EVAL: 'RROUJ%d' % env['account.journal'].search_count([])"
+        type: "general"
+
+    - step: "Create the unearned income account"
+      action: "create"
+      model: "account.account"
+      save_as: "unearned_account"
+      values:
+        name:
+          "EVAL: 'Test RR OU Unearned Account %d' %
+          env['account.account'].search_count([])"
+        code: "EVAL: 'RROUUA%d' % env['account.account'].search_count([])"
+        user_type_id: "REF: account.data_account_type_current_liabilities"
+
+    - step: "Create the income account"
+      action: "create"
+      model: "account.account"
+      save_as: "income_account"
+      values:
+        name:
+          "EVAL: 'Test RR OU Income Account %d' %
+          env['account.account'].search_count([])"
+        code: "EVAL: 'RROUIA%d' % env['account.account'].search_count([])"
+        user_type_id: "REF: account.data_account_type_revenue"
+
+scenarios:
+  - name:
+      "A revenue recognition inherits its PoB's non-default operating unit, not the
+      acting user's default"
+    steps:
+      - step: "Create a draft revenue recognition for the PoB on the 2nd OU"
+        action: "create"
+        model: "revenue_recognition"
+        save_as: "rr"
+        values:
+          type_id: "REC: rrt.id"
+          partner_id: "REC: customer.id"
+          performance_obligation_id: "REC: pob.id"
+          date: 2024-01-31
+          date_start: 2024-01-01
+          date_end: 2024-01-31
+          journal_id: "REC: journal.id"
+          unearned_income_account_id: "REC: unearned_account.id"
+          income_account_id: "REC: income_account.id"
+
+      - step: "operating_unit_id mirrors the PoB's second operating unit"
+        action: "assert"
+        target: "rr"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: ou_2"
