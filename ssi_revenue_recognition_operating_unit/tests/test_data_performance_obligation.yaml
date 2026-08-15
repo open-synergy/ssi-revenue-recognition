@@ -1,0 +1,102 @@
+options:
+  auto_refresh: true
+
+setup:
+  steps:
+    - step: "Create the shared partner for both operating units"
+      action: "create"
+      model: "res.partner"
+      save_as: "ou_partner"
+      values:
+        name: "EVAL: 'Test PoB OU Partner %d' % env['res.partner'].search_count([])"
+        is_company: true
+
+    - step: "Create the first operating unit (not used on the PoB under test)"
+      action: "create"
+      model: "operating.unit"
+      save_as: "ou_1"
+      values:
+        name: "EVAL: 'Test PoB OU 1 %d' % env['operating.unit'].search_count([])"
+        code: "EVAL: 'POBOU1%d' % env['operating.unit'].search_count([])"
+        partner_id: "REC: ou_partner.id"
+
+    - step: "Create the second operating unit (assigned to the PoB under test)"
+      action: "create"
+      model: "operating.unit"
+      save_as: "ou_2"
+      values:
+        name: "EVAL: 'Test PoB OU 2 %d' % env['operating.unit'].search_count([])"
+        code: "EVAL: 'POBOU2%d' % env['operating.unit'].search_count([])"
+        partner_id: "REC: ou_partner.id"
+
+    - step: "Create the source analytic account of the contract"
+      action: "create"
+      model: "account.analytic.account"
+      save_as: "source_aa"
+      values:
+        name:
+          "EVAL: 'Test PoB OU Source AA %d' %
+          env['account.analytic.account'].search_count([])"
+
+scenarios:
+  - name: "Creating a PoB with a non-default operating unit stores it"
+    steps:
+      - step: "Create draft PoB directly on the second operating unit"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob"
+        values:
+          title: "Test PoB - Operating Unit 2"
+          source_analytic_account_id: "REC: source_aa.id"
+          operating_unit_id: "REC: ou_2.id"
+
+      - step: "operating_unit_id is the second operating unit, not falsy/default"
+        action: "assert"
+        target: "pob"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: ou_2"
+
+  - name:
+      "A user without rights over the second operating unit cannot read a PoB owned by
+      it"
+    steps:
+      - step: "Create draft PoB on the second operating unit as superuser"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob"
+        values:
+          title: "Test PoB - OU AccessError"
+          source_analytic_account_id: "REC: source_aa.id"
+          operating_unit_id: "REC: ou_2.id"
+
+      - step:
+          "Create an internal user in the OU group, assigned only the first operating
+          unit"
+        action: "create"
+        model: "res.users"
+        save_as: "restricted_user"
+        values:
+          name: "Test PoB OU Restricted User"
+          login: "EVAL: 'test_pob_ou_restricted_%d' % env['res.users'].search_count([])"
+          groups_id:
+            - - 6
+              - 0
+              - - "REF: base.group_user"
+                - "REF:
+                  ssi_revenue_recognition_operating_unit.service_contract_performance_obligation_ou_group"
+          assigned_operating_unit_ids:
+            - - 6
+              - 0
+              - - "REC: ou_1.id"
+
+      - step: "Reading the PoB as that user raises AccessError"
+        action: "call"
+        target: "pob"
+        method: "read"
+        args:
+          - - "id"
+        as_user: "restricted_user"
+        expect_error:
+          type: "AccessError"

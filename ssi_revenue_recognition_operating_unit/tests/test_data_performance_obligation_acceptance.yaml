@@ -1,0 +1,79 @@
+options:
+  auto_refresh: true
+
+setup:
+  steps:
+    - step: "Create the shared partner for both operating units"
+      action: "create"
+      model: "res.partner"
+      save_as: "ou_partner"
+      values:
+        name: "EVAL: 'Test PoA OU Partner %d' % env['res.partner'].search_count([])"
+        is_company: true
+
+    - step: "Create the customer partner of the acceptance"
+      action: "create"
+      model: "res.partner"
+      save_as: "customer"
+      values:
+        name: "EVAL: 'Test PoA OU Customer %d' % env['res.partner'].search_count([])"
+
+    - step: "Create the first operating unit (not used on the PoB under test)"
+      action: "create"
+      model: "operating.unit"
+      save_as: "ou_1"
+      values:
+        name: "EVAL: 'Test PoA OU 1 %d' % env['operating.unit'].search_count([])"
+        code: "EVAL: 'POAOU1%d' % env['operating.unit'].search_count([])"
+        partner_id: "REC: ou_partner.id"
+
+    - step: "Create the second operating unit (assigned to the PoB under test)"
+      action: "create"
+      model: "operating.unit"
+      save_as: "ou_2"
+      values:
+        name: "EVAL: 'Test PoA OU 2 %d' % env['operating.unit'].search_count([])"
+        code: "EVAL: 'POAOU2%d' % env['operating.unit'].search_count([])"
+        partner_id: "REC: ou_partner.id"
+
+    - step: "Create the source analytic account of the contract"
+      action: "create"
+      model: "account.analytic.account"
+      save_as: "source_aa"
+      values:
+        name:
+          "EVAL: 'Test PoA OU Source AA %d' %
+          env['account.analytic.account'].search_count([])"
+
+    - step: "Create the Performance Obligation on the second operating unit"
+      action: "create"
+      model: "performance_obligation"
+      save_as: "pob"
+      values:
+        title: "Test PoB - PoA OU Parent"
+        source_analytic_account_id: "REC: source_aa.id"
+        operating_unit_id: "REC: ou_2.id"
+
+scenarios:
+  - name:
+      "An acceptance inherits its PoB's non-default operating unit, not the acting
+      user's default"
+    steps:
+      - step: "Create a draft acceptance for the PoB on the second operating unit"
+        action: "create"
+        model: "performance_obligation_acceptance"
+        save_as: "acceptance"
+        values:
+          partner_id: "REC: customer.id"
+          performance_obligation_id: "REC: pob.id"
+          date: 2024-01-31
+          date_start: 2024-01-01
+          date_end: 2024-01-31
+
+      - step: "operating_unit_id mirrors the PoB's second operating unit"
+        action: "assert"
+        target: "acceptance"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: ou_2"
