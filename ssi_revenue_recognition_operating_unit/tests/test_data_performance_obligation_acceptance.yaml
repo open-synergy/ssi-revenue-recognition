@@ -77,3 +77,67 @@ scenarios:
           operating_unit_id:
             type: "m2o"
             expected: "REC: ou_2"
+
+  - name: "write operating_unit_id on a done acceptance is rejected (issue #72)"
+    steps:
+      - step: "Create a draft acceptance for the PoB as admin"
+        action: "create"
+        model: "performance_obligation_acceptance"
+        save_as: "acceptance"
+        as_user: "base.user_admin"
+        values:
+          partner_id: "REC: customer.id"
+          performance_obligation_id: "REC: pob.id"
+          date: 2024-01-31
+          date_start: 2024-01-01
+          date_end: 2024-01-31
+
+      - step: "Confirm the acceptance"
+        action: "call"
+        target: "acceptance"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04).
+      - step: "Acceptance is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "acceptance"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step:
+          "Approve the acceptance (auto-runs action_done via _after_approved_method)"
+        action: "call"
+        target: "acceptance"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Writing operating_unit_id on the done acceptance is rejected"
+        action: "write"
+        target: "acceptance"
+        as_user: "base.user_admin"
+        values:
+          operating_unit_id: "REC: ou_1.id"
+        expect_error:
+          type: "UserError"
+          message_contains: "Operating unit cannot be changed"
+
+      - step: "operating_unit_id stays the PoB's second operating unit"
+        action: "assert"
+        refresh: true
+        target: "acceptance"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: ou_2"

@@ -16,7 +16,9 @@ class TestPerformanceObligation(YamlTransactionCase):
     the acting user's default operating unit -- and a user who is
     only granted the second operating unit's sibling group but not
     assigned to that operating unit is denied read access to a PoB
-    owned by it.
+    owned by it. Also covers issue #72: once the PoB reaches
+    ``done``, writing ``operating_unit_id`` is rejected with a
+    ``UserError`` instead of silently going through.
     """
 
     def test_performance_obligation(self):
