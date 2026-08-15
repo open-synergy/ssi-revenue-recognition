@@ -8,7 +8,8 @@
     "website": "https://simetri-sinergi.id",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "license": "AGPL-3",
-    "installable": True,
+    # Deprecated module, kept as archive only. Use ssi_revenue_recognition instead.
+    "installable": False,
     "depends": [
         "ssi_revenue_recognition",
         "ssi_transaction_confirm_mixin",
