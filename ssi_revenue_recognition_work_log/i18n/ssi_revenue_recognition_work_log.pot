@@ -14,6 +14,18 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: ssi_revenue_recognition_work_log
+#: code:addons/ssi_revenue_recognition_work_log/models/performance_obligation_acceptance.py:0
+#, python-format
+msgid ""
+"\n"
+"Context: Select work log for %s\n"
+"Database ID: %s\n"
+"Problem: Work log \"%s\" is not part of the allowed work logs\n"
+"Solution: Select work logs within the acceptance's date window and\n"
+"matching the performance obligation's analytic account\n"
+msgstr ""
+
+#. module: ssi_revenue_recognition_work_log
 #: model:ir.model.fields,field_description:ssi_revenue_recognition_work_log.field_performance_obligation_acceptance__allowed_work_log_ids
 msgid "Allowed Work Logs"
 msgstr ""
