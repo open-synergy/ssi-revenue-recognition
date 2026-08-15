@@ -3,6 +3,14 @@
      Copyright 2022 PT. Simetri Sinergi Indonesia
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
+<!-- Overrides analytic.account_analytic_line_action's domain so the core
+     "Cost/Revenue" smart button also includes lines posted to child analytic
+     accounts (e.g. a Performance Obligation's own auto-created account,
+     which account_analytic_parent places under its source contract's
+     account). See OFS/26/000024. -->
+<record id="analytic.account_analytic_line_action" model="ir.actions.act_window">
+    <field name="domain">[('account_id', 'child_of', active_id)]</field>
+</record>
 <record id="account_analytic_account_view_form" model="ir.ui.view">
     <field name="name">account.analytic.account - form</field>
     <field name="model">account.analytic.account</field>
