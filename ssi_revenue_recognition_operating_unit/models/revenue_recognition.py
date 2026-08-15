@@ -20,6 +20,13 @@ class RevenueRecognition(models.Model):
     attribute only -- ``write()`` still tunnels straight through the
     ORM, so the field stays locked here once the document is
     ``done``; see ``write()``.
+
+    Also propagates ``operating_unit_id`` onto the ``account.move``
+    (and its lines) that ``_create_accounting_entry()`` posts when
+    this record reaches ``done``, so the accounting entry stays on
+    the same operating unit as this record instead of falling back
+    to the posting user's default operating unit -- see
+    ``_prepare_account_move()`` and ``_prepare_ml()``.
     """
 
     _name = "revenue_recognition"
@@ -68,3 +75,36 @@ operating unit
                 )
                 raise UserError(error_message)
         return super().write(vals)
+
+    def _prepare_account_move(self):
+        """Build the header values of the ``account.move`` to create.
+
+        Extends the base header with ``operating_unit_id`` so the
+        accounting entry created by ``_create_accounting_entry()``
+        carries this record's operating unit instead of falling back
+        to the posting user's default operating unit.
+
+        :return: dict of ``account.move`` values
+        """
+        self.ensure_one()
+        res = super()._prepare_account_move()
+        res["operating_unit_id"] = self.operating_unit_id.id
+        return res
+
+    def _prepare_ml(self, account, debit, credit):
+        """Build the common ``account.move.line`` values, with the OU.
+
+        Extends the base line values with ``operating_unit_id`` so
+        every move line created against ``move_id`` (income, unearned
+        income) carries this record's operating unit, mirroring
+        ``_prepare_account_move()`` at the line level.
+
+        :param account: an ``account.account`` record
+        :param debit: debit amount
+        :param credit: credit amount
+        :return: dict of ``account.move.line`` values
+        """
+        self.ensure_one()
+        res = super()._prepare_ml(account=account, debit=debit, credit=credit)
+        res["operating_unit_id"] = self.operating_unit_id.id
+        return res

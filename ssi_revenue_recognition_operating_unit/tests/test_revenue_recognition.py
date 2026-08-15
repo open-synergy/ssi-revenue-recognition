@@ -18,7 +18,12 @@ class TestRevenueRecognition(YamlTransactionCase):
     that is not the acting user's default one. Also covers issue
     #72: once the revenue recognition reaches ``done``, writing
     ``operating_unit_id`` is rejected with a ``UserError`` even
-    though the related field is only readonly at the UI layer.
+    though the related field is only readonly at the UI layer. Also
+    covers issue #82: the ``account.move`` (and its lines) posted by
+    ``_create_accounting_entry()`` when the document reaches ``done``
+    carries the same operating unit as this record -- including the
+    negative case where the record has none, proving the default is
+    not silently applied.
     """
 
     def test_revenue_recognition(self):

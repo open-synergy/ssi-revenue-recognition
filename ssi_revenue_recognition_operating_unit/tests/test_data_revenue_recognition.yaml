@@ -225,3 +225,172 @@ scenarios:
           operating_unit_id:
             type: "m2o"
             expected: "REC: ou_2"
+
+  - name:
+      "A revenue recognition reaching done propagates its operating unit to the
+      account.move it creates (issue #82)"
+    steps:
+      - step: "Create a draft revenue recognition for the PoB on the 2nd OU"
+        action: "create"
+        model: "revenue_recognition"
+        save_as: "rr"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: rrt.id"
+          partner_id: "REC: customer.id"
+          performance_obligation_id: "REC: pob.id"
+          date: 2024-01-31
+          date_start: 2024-01-01
+          date_end: 2024-01-31
+          journal_id: "REC: journal.id"
+          unearned_income_account_id: "REC: unearned_account.id"
+          income_account_id: "REC: income_account.id"
+
+      - step: "Confirm the revenue recognition"
+        action: "call"
+        target: "rr"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04).
+      - step: "Revenue recognition is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "rr"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step:
+          "Approve the revenue recognition (auto-runs action_done, which posts the
+          accounting entry via _create_accounting_entry)"
+        action: "call"
+        target: "rr"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "The created account.move carries the same operating unit as rr"
+        action: "assert"
+        refresh: true
+        target: "rr"
+        asserts:
+          move_id.operating_unit_id:
+            type: "m2o"
+            expected: "REC: ou_2"
+
+      - step: "The move has both the income and unearned income lines"
+        action: "assert"
+        target: "rr"
+        asserts:
+          move_id.line_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 2
+
+      - step:
+          "No line of the created move deviates from rr's operating unit (income and
+          unearned income lines alike)"
+        action: "search"
+        model: "account.move.line"
+        domain:
+          - ["move_id", "=", "REC: rr.move_id.id"]
+          - ["operating_unit_id", "!=", "REC: ou_2.id"]
+        save_as: "deviating_ml"
+        expect_count: 0
+
+  - name:
+      "A revenue recognition without an operating unit reaching done leaves its
+      account.move without one (issue #82)"
+    steps:
+      - step: "Create the analytic account of the OU-less PoB"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_no_ou"
+        values:
+          name:
+            "EVAL: 'Test RR OU No-OU Source AA %d' %
+            env['account.analytic.account'].search_count([])"
+
+      - step: "Create the Performance Obligation without an operating unit"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_no_ou"
+        values:
+          title: "Test PoB - RR OU No-OU Parent"
+          source_analytic_account_id: "REC: source_aa_no_ou.id"
+
+      - step: "PoB has no operating unit"
+        action: "assert"
+        target: "pob_no_ou"
+        asserts:
+          operating_unit_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Create a draft revenue recognition for the OU-less PoB"
+        action: "create"
+        model: "revenue_recognition"
+        save_as: "rr_no_ou"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: rrt.id"
+          partner_id: "REC: customer.id"
+          performance_obligation_id: "REC: pob_no_ou.id"
+          date: 2024-01-31
+          date_start: 2024-01-01
+          date_end: 2024-01-31
+          journal_id: "REC: journal.id"
+          unearned_income_account_id: "REC: unearned_account.id"
+          income_account_id: "REC: income_account.id"
+
+      - step: "Confirm the revenue recognition"
+        action: "call"
+        target: "rr_no_ou"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04).
+      - step: "Revenue recognition is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "rr_no_ou"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step:
+          "Approve the revenue recognition (auto-runs action_done, which posts the
+          accounting entry via _create_accounting_entry)"
+        action: "call"
+        target: "rr_no_ou"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step:
+          "The created account.move has no operating unit either -- the default is not
+          silently applied"
+        action: "assert"
+        refresh: true
+        target: "rr_no_ou"
+        asserts:
+          move_id.operating_unit_id:
+            type: "value"
+            operator: "is_falsy"

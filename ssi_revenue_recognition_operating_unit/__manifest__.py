@@ -12,6 +12,7 @@
     "depends": [
         "ssi_revenue_recognition",
         "ssi_operating_unit_mixin",
+        "account_operating_unit",
         "web_tour",
     ],
     "data": [
