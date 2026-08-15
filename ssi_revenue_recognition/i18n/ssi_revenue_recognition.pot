@@ -55,11 +55,6 @@ msgid "# Performance Obligation Acceptance"
 msgstr ""
 
 #. module: ssi_revenue_recognition
-#: model:ir.model.fields,field_description:ssi_revenue_recognition.field_account_analytic_account__pob_cost_revenue_count
-msgid "# PoB Cost/Revenue"
-msgstr ""
-
-#. module: ssi_revenue_recognition
 #: model:ir.model.fields,field_description:ssi_revenue_recognition.field_revenue_recognition_account__recognition_id
 msgid "# Recognition"
 msgstr ""
