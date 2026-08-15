@@ -15,7 +15,10 @@ class TestRevenueRecognition(YamlTransactionCase):
     field mirroring ``performance_obligation_id.operating_unit_id``,
     so a revenue recognition always carries its performance
     obligation's operating unit -- proven here with an operating unit
-    that is not the acting user's default one.
+    that is not the acting user's default one. Also covers issue
+    #72: once the revenue recognition reaches ``done``, writing
+    ``operating_unit_id`` is rejected with a ``UserError`` even
+    though the related field is only readonly at the UI layer.
     """
 
     def test_revenue_recognition(self):

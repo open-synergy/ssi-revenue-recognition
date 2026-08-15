@@ -100,3 +100,74 @@ scenarios:
         as_user: "restricted_user"
         expect_error:
           type: "AccessError"
+
+  - name: "write operating_unit_id on a done PoB is rejected (issue #72)"
+    steps:
+      - step: "Create draft PoB on the first operating unit as admin"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob"
+        as_user: "base.user_admin"
+        values:
+          title: "Test PoB - OU Locked After Done"
+          source_analytic_account_id: "REC: source_aa.id"
+          operating_unit_id: "REC: ou_1.id"
+
+      - step: "Confirm the PoB"
+        action: "call"
+        target: "pob"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04).
+      - step: "PoB is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "pob"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the PoB (auto-runs action_open via _after_approved_method)"
+        action: "call"
+        target: "pob"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Move the PoB to done"
+        action: "call"
+        target: "pob"
+        method: "action_done"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Writing operating_unit_id on the done PoB is rejected"
+        action: "write"
+        target: "pob"
+        as_user: "base.user_admin"
+        values:
+          operating_unit_id: "REC: ou_2.id"
+        expect_error:
+          type: "UserError"
+          message_contains: "Operating unit cannot be changed"
+
+      - step: "operating_unit_id stays the first operating unit, unchanged"
+        action: "assert"
+        refresh: true
+        target: "pob"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: ou_1"

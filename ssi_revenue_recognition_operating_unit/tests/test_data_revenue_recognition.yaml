@@ -145,3 +145,83 @@ scenarios:
           operating_unit_id:
             type: "m2o"
             expected: "REC: ou_2"
+
+  - name:
+      "write operating_unit_id on a done revenue recognition is rejected (issue #72)"
+    steps:
+      - step: "Create the first operating unit, different from the PoB's"
+        action: "create"
+        model: "operating.unit"
+        save_as: "ou_1"
+        values:
+          name:
+            "EVAL: 'Test RR OU Locked 1 %d' % env['operating.unit'].search_count([])"
+          code: "EVAL: 'RROULK1%d' % env['operating.unit'].search_count([])"
+          partner_id: "REC: ou_partner.id"
+
+      - step: "Create a draft revenue recognition for the PoB as admin"
+        action: "create"
+        model: "revenue_recognition"
+        save_as: "rr"
+        as_user: "base.user_admin"
+        values:
+          type_id: "REC: rrt.id"
+          partner_id: "REC: customer.id"
+          performance_obligation_id: "REC: pob.id"
+          date: 2024-01-31
+          date_start: 2024-01-01
+          date_end: 2024-01-31
+          journal_id: "REC: journal.id"
+          unearned_income_account_id: "REC: unearned_account.id"
+          income_account_id: "REC: income_account.id"
+
+      - step: "Confirm the revenue recognition"
+        action: "call"
+        target: "rr"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04).
+      - step: "Revenue recognition is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "rr"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step:
+          "Approve the revenue recognition (auto-runs action_done via
+          _after_approved_method)"
+        action: "call"
+        target: "rr"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+      - step: "Writing operating_unit_id on the done revenue recognition is rejected"
+        action: "write"
+        target: "rr"
+        as_user: "base.user_admin"
+        values:
+          operating_unit_id: "REC: ou_1.id"
+        expect_error:
+          type: "UserError"
+          message_contains: "Operating unit cannot be changed"
+
+      - step: "operating_unit_id stays the PoB's second operating unit"
+        action: "assert"
+        refresh: true
+        target: "rr"
+        asserts:
+          operating_unit_id:
+            type: "m2o"
+            expected: "REC: ou_2"
