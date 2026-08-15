@@ -1,0 +1,320 @@
+options:
+  auto_refresh: true
+
+setup:
+  steps:
+    - step: "Create the shared partner for both operating units"
+      action: "create"
+      model: "res.partner"
+      save_as: "ou_partner"
+      values:
+        name:
+          "EVAL: 'Test PoB Project OU Partner %d' % env['res.partner'].search_count([])"
+        is_company: true
+
+    - step: "Create the first operating unit (not used on the PoB under test)"
+      action: "create"
+      model: "operating.unit"
+      save_as: "ou_1"
+      values:
+        name:
+          "EVAL: 'Test PoB Project OU 1 %d' % env['operating.unit'].search_count([])"
+        code: "EVAL: 'POBPOU1%d' % env['operating.unit'].search_count([])"
+        partner_id: "REC: ou_partner.id"
+
+    - step: "Create the second operating unit (assigned to most PoBs under test)"
+      action: "create"
+      model: "operating.unit"
+      save_as: "ou_2"
+      values:
+        name:
+          "EVAL: 'Test PoB Project OU 2 %d' % env['operating.unit'].search_count([])"
+        code: "EVAL: 'POBPOU2%d' % env['operating.unit'].search_count([])"
+        partner_id: "REC: ou_partner.id"
+
+scenarios:
+  - name: "Opening a PoB on the second operating unit propagates it to its project"
+    steps:
+      - step: "Create the source analytic account under the shared partner"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_2"
+        values:
+          name:
+            "EVAL: 'Test PoB Project OU Source AA 2 %d' %
+            env['account.analytic.account'].search_count([])"
+          partner_id: "REC: ou_partner.id"
+
+      - step: "Create draft PoB on the second operating unit, auto-creating a project"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_2"
+        as_user: "base.user_admin"
+        values:
+          title: "Test PoB Project OU - Second OU"
+          source_analytic_account_id: "REC: source_aa_2.id"
+          operating_unit_id: "REC: ou_2.id"
+          auto_create_project: true
+
+      - step: "PoB has no project yet while still draft"
+        action: "assert"
+        target: "pob_2"
+        asserts:
+          project_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Confirm the PoB"
+        action: "call"
+        target: "pob_2"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04) -- tanpa
+      # step ini approve_ok bisa terbaca dari cache yang diisi
+      # action_confirm, saat approval.approval belum ada.
+      - step: "PoB is confirm before approving, still without a project"
+        action: "assert"
+        refresh: true
+        target: "pob_2"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+          project_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Approve the PoB (auto-runs action_open, no project yet)"
+        action: "call"
+        target: "pob_2"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "The created project carries the PoB's second operating unit"
+        action: "assert"
+        target: "pob_2"
+        asserts:
+          project_id:
+            type: "value"
+            operator: "is_truthy"
+          project_id.operating_unit_id:
+            type: "m2o"
+            expected: "REC: ou_2"
+
+  - name:
+      "Opening a PoB on the first operating unit propagates it too (proving the value is
+      not a constant)"
+    steps:
+      - step: "Create the source analytic account under the shared partner"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_1"
+        values:
+          name:
+            "EVAL: 'Test PoB Project OU Source AA 1 %d' %
+            env['account.analytic.account'].search_count([])"
+          partner_id: "REC: ou_partner.id"
+
+      - step: "Create draft PoB on the first operating unit, auto-creating a project"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_1"
+        as_user: "base.user_admin"
+        values:
+          title: "Test PoB Project OU - First OU"
+          source_analytic_account_id: "REC: source_aa_1.id"
+          operating_unit_id: "REC: ou_1.id"
+          auto_create_project: true
+
+      - step: "Confirm the PoB"
+        action: "call"
+        target: "pob_1"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04).
+      - step: "PoB is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "pob_1"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the PoB (auto-runs action_open)"
+        action: "call"
+        target: "pob_1"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "The created project follows the PoB's first operating unit"
+        action: "assert"
+        target: "pob_1"
+        asserts:
+          project_id.operating_unit_id:
+            type: "m2o"
+            expected: "REC: ou_1"
+
+  - name: "Calling action_open directly on a draft PoB is rejected, no project created"
+    steps:
+      - step: "Create the source analytic account under the shared partner"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_3"
+        values:
+          name:
+            "EVAL: 'Test PoB Project OU Source AA 3 %d' %
+            env['account.analytic.account'].search_count([])"
+          partner_id: "REC: ou_partner.id"
+
+      - step: "Create draft PoB on the second operating unit, auto-creating a project"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_3"
+        as_user: "base.user_admin"
+        values:
+          title: "Test PoB Project OU - Direct Open Rejected"
+          source_analytic_account_id: "REC: source_aa_3.id"
+          operating_unit_id: "REC: ou_2.id"
+          auto_create_project: true
+
+      - step: "PoB is still draft before the rejected call"
+        action: "assert"
+        target: "pob_3"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Calling action_open directly from draft is rejected"
+        action: "call"
+        target: "pob_3"
+        method: "action_open"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+
+      - step: "PoB stays draft with no project created"
+        action: "assert"
+        refresh: true
+        target: "pob_3"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+          project_id:
+            type: "value"
+            operator: "is_falsy"
+
+  - name:
+      "A user without rights over the second operating unit cannot read the project
+      created for a PoB owned by it"
+    steps:
+      - step: "Create the source analytic account under the shared partner"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_4"
+        values:
+          name:
+            "EVAL: 'Test PoB Project OU Source AA 4 %d' %
+            env['account.analytic.account'].search_count([])"
+          partner_id: "REC: ou_partner.id"
+
+      - step: "Create draft PoB on the second operating unit, auto-creating a project"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_4"
+        as_user: "base.user_admin"
+        values:
+          title: "Test PoB Project OU - Restricted Project Access"
+          source_analytic_account_id: "REC: source_aa_4.id"
+          operating_unit_id: "REC: ou_2.id"
+          auto_create_project: true
+
+      - step: "Confirm the PoB"
+        action: "call"
+        target: "pob_4"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      # WAJIB: memaksa refresh sebelum approval dibaca (T-04).
+      - step: "PoB is confirm before approving"
+        action: "assert"
+        refresh: true
+        target: "pob_4"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve the PoB, creating the project on the second operating unit"
+        action: "call"
+        target: "pob_4"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Find the project created for this PoB"
+        action: "search"
+        model: "project.project"
+        domain:
+          [
+            ["name", "=", "Test PoB Project OU - Restricted Project Access"],
+            ["operating_unit_id", "=", "REC: ou_2.id"],
+          ]
+        save_as: "project_4"
+        expect_count: 1
+
+      - step: "Create an internal user granted only the first operating unit"
+        action: "create"
+        model: "res.users"
+        save_as: "restricted_user"
+        values:
+          name: "Test PoB Project OU Restricted User"
+          login:
+            "EVAL: 'test_pob_project_ou_restricted_%d' %
+            env['res.users'].search_count([])"
+          groups_id:
+            - - 6
+              - 0
+              - - "REF: base.group_user"
+                - "REF: ssi_project_operating_unit.project_ou_group"
+          assigned_operating_unit_ids:
+            - - 6
+              - 0
+              - - "REC: ou_1.id"
+
+      - step: "Reading the project as that user raises AccessError"
+        action: "call"
+        target: "project_4"
+        method: "read"
+        args:
+          - - "id"
+        as_user: "restricted_user"
+        expect_error:
+          type: "AccessError"
