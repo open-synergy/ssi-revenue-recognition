@@ -20,11 +20,17 @@ addon | version | maintainers | summary
 --- | --- | --- | ---
 [ssi_performance_obligation_quality_control](ssi_performance_obligation_quality_control/) | 14.0.2.1.1 |  | Performance Obligation + Quality Control Integration
 [ssi_revenue_recognition](ssi_revenue_recognition/) | 14.0.8.5.0 |  | Revenue Recognition
-[ssi_revenue_recognition_full](ssi_revenue_recognition_full/) | 14.0.1.2.1 |  | Revenue Recognition - Full
 [ssi_revenue_recognition_operating_unit](ssi_revenue_recognition_operating_unit/) | 14.0.3.3.0 |  | Revenue Recognition + Operating Unit Integration
 [ssi_revenue_recognition_project](ssi_revenue_recognition_project/) | 14.0.3.0.3 |  | Revenue Recognition + Project Integration
 [ssi_revenue_recognition_project_operating_unit](ssi_revenue_recognition_project_operating_unit/) | 14.0.3.0.3 |  | Revenue Recognition + Project + Operating Unit Integration
 [ssi_revenue_recognition_work_log](ssi_revenue_recognition_work_log/) | 14.0.2.0.3 |  | Revenue Recognition - Work Log Integration
+
+
+Unported addons
+---------------
+addon | version | maintainers | summary
+--- | --- | --- | ---
+[ssi_revenue_recognition_full](ssi_revenue_recognition_full/) | 14.0.1.2.1 (unported) |  | Revenue Recognition - Full
 
 [//]: # (end addons)
 

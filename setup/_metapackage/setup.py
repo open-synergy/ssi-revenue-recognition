@@ -10,7 +10,6 @@ setuptools.setup(
     install_requires=[
         'odoo14-addon-ssi_performance_obligation_quality_control',
         'odoo14-addon-ssi_revenue_recognition',
-        'odoo14-addon-ssi_revenue_recognition_full',
         'odoo14-addon-ssi_revenue_recognition_operating_unit',
         'odoo14-addon-ssi_revenue_recognition_project',
         'odoo14-addon-ssi_revenue_recognition_project_operating_unit',
