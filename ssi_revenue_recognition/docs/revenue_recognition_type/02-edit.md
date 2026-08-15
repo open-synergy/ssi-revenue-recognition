@@ -1,9 +1,17 @@
 # Edit Revenue Recognition Type
 
-> **Module:** ssi*revenue_recognition **Model:** `revenue_recognition_type` > **Menu:**
-> Cost Accounting > Configuration > Revenue Recognition > Revenue Recognition Types
-> **Actor:** user in group \_Revenue Recognition Type — Configurator* > **Requires:** >
-> `01-create` > **Inline Actions:** `action_generate_code` (Generate Code)
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `revenue_recognition_type`
+>
+> **Menu:** Cost Accounting > Configuration > Revenue Recognition > Revenue Recognition
+> Types
+>
+> **Actor:** user in group _Revenue Recognition Type — Configurator_
+>
+> **Requires:** `01-create`
+>
+> **Inline Actions:** `action_generate_code` (Generate Code)
 
 ## Pre-Condition
 

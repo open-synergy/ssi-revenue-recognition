@@ -1,9 +1,16 @@
 # Confirm Revenue Recognition
 
-> **Module:** ssi*revenue_recognition **Model:** `revenue_recognition` > **Menu:** Cost
-> Accounting > Revenue Recognition > Revenue Recognitions **Actor:** user in group
-> \_Revenue Recognition — User* > **State:** `draft` → `confirm` > **Requires:** >
-> `01-create`
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `revenue_recognition`
+>
+> **Menu:** Cost Accounting > Revenue Recognition > Revenue Recognitions
+>
+> **Actor:** user in group _Revenue Recognition — User_
+>
+> **State:** `draft` → `confirm`
+>
+> **Requires:** `01-create`
 
 ## Pre-Condition
 

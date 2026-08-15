@@ -1,8 +1,15 @@
 # Restart Revenue Recognition
 
-> **Module:** ssi*revenue_recognition **Model:** `revenue_recognition` > **Menu:** Cost
-> Accounting > Revenue Recognition > Revenue Recognitions **Actor:** user in group
-> \_Revenue Recognition — Validator* > **State:** `cancel` | `reject` → `draft` >
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `revenue_recognition`
+>
+> **Menu:** Cost Accounting > Revenue Recognition > Revenue Recognitions
+>
+> **Actor:** user in group _Revenue Recognition — Validator_
+>
+> **State:** `cancel` | `reject` → `draft`
+>
 > **Requires:** `10-cancel`
 
 ## Pre-Condition

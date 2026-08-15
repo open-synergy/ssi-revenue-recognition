@@ -1,9 +1,16 @@
 # Confirm Performance Obligation
 
-> **Module:** ssi*revenue_recognition **Model:** `performance_obligation` > **Menu:**
-> Cost Accounting > Revenue Recognition > Performance Obligations **Actor:** user in
-> group \_Performance Obligation — User* > **State:** `draft` → `confirm` >
-> **Requires:** > `01-create`
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `performance_obligation`
+>
+> **Menu:** Cost Accounting > Revenue Recognition > Performance Obligations
+>
+> **Actor:** user in group _Performance Obligation — User_
+>
+> **State:** `draft` → `confirm`
+>
+> **Requires:** `01-create`
 
 ## Pre-Condition
 

@@ -1,8 +1,14 @@
 # Edit Performance Obligation
 
-> **Module:** ssi*revenue_recognition **Model:** `performance_obligation` > **Menu:**
-> Cost Accounting > Revenue Recognition > Performance Obligations **Actor:** user in
-> group \_Performance Obligation — User* > **Requires:** `01-create`
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `performance_obligation`
+>
+> **Menu:** Cost Accounting > Revenue Recognition > Performance Obligations
+>
+> **Actor:** user in group _Performance Obligation — User_
+>
+> **Requires:** `01-create`
 
 ## Pre-Condition
 

@@ -1,9 +1,16 @@
 # Create Revenue Recognition
 
-> **Module:** ssi*revenue_recognition **Model:** `revenue_recognition` > **Menu:** Cost
-> Accounting > Revenue Recognition > Revenue Recognitions **Actor:** user in group
-> \_Revenue Recognition — User* > **State:** `—` → `draft` > **Inline Actions:** >
-> `action_populate` (Populate)
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `revenue_recognition`
+>
+> **Menu:** Cost Accounting > Revenue Recognition > Revenue Recognitions
+>
+> **Actor:** user in group _Revenue Recognition — User_
+>
+> **State:** `—` → `draft`
+>
+> **Inline Actions:** `action_populate` (Populate)
 
 ## Pre-Condition
 

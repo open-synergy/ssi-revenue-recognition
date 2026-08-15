@@ -1,9 +1,17 @@
 # Deactivate Revenue Recognition Type
 
-> **Module:** ssi*revenue_recognition **Model:** `revenue_recognition_type` > **Menu:**
-> Cost Accounting > Configuration > Revenue Recognition > Revenue Recognition Types
-> **Actor:** user in group \_Revenue Recognition Type — Configurator* > **Active:** >
-> `true` → `false` > **Requires:** `01-create`
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `revenue_recognition_type`
+>
+> **Menu:** Cost Accounting > Configuration > Revenue Recognition > Revenue Recognition
+> Types
+>
+> **Actor:** user in group _Revenue Recognition Type — Configurator_
+>
+> **Active:** `true` → `false`
+>
+> **Requires:** `01-create`
 
 ## Pre-Condition
 
