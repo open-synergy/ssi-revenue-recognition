@@ -1,8 +1,14 @@
 # Restart Approval Process — Revenue Recognition
 
-> **Module:** ssi*revenue_recognition **Model:** `revenue_recognition` > **Menu:** Cost
-> Accounting > Revenue Recognition > Revenue Recognitions **Actor:** user in group
-> \_Revenue Recognition — Validator* > **Requires:** `04-confirm`
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `revenue_recognition`
+>
+> **Menu:** Cost Accounting > Revenue Recognition > Revenue Recognitions
+>
+> **Actor:** user in group _Revenue Recognition — Validator_
+>
+> **Requires:** `04-confirm`
 
 ## Pre-Condition
 

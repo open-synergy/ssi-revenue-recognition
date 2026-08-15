@@ -1,9 +1,14 @@
 # Create Performance Obligation Acceptance
 
-> **Module:** ssi*revenue_recognition **Model:** `performance_obligation_acceptance` >
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `performance_obligation_acceptance`
+>
 > **Menu:** Cost Accounting > Revenue Recognition > Performance Obligation Acceptances
-> **Actor:** user in group \_Performance Obligation Acceptance — User* > **State:** `—`
-> → `draft`
+>
+> **Actor:** user in group _Performance Obligation Acceptance — User_
+>
+> **State:** `—` → `draft`
 
 ## Pre-Condition
 

@@ -1,9 +1,16 @@
 # Approve Revenue Recognition
 
-> **Module:** ssi_revenue_recognition **Model:** `revenue_recognition` > **Menu:** Cost
-> Accounting > Revenue Recognition > Revenue Recognitions **Actor:** approver on the
-> approval level that is currently pending **State:** `confirm` → `done` >
-> **Requires:** > `04-confirm`
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `revenue_recognition`
+>
+> **Menu:** Cost Accounting > Revenue Recognition > Revenue Recognitions
+>
+> **Actor:** approver on the approval level that is currently pending
+>
+> **State:** `confirm` → `done`
+>
+> **Requires:** `04-confirm`
 
 ## Pre-Condition
 

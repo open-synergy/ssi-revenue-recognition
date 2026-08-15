@@ -1,8 +1,15 @@
 # Approve Performance Obligation
 
-> **Module:** ssi_revenue_recognition **Model:** `performance_obligation` > **Menu:**
-> Cost Accounting > Revenue Recognition > Performance Obligations **Actor:** approver on
-> the approval level that is currently pending **State:** `confirm` → `open` >
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `performance_obligation`
+>
+> **Menu:** Cost Accounting > Revenue Recognition > Performance Obligations
+>
+> **Actor:** approver on the approval level that is currently pending
+>
+> **State:** `confirm` → `open`
+>
 > **Requires:** `04-confirm`
 
 ## Pre-Condition

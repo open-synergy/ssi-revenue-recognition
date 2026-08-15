@@ -1,9 +1,16 @@
 # Cancel Revenue Recognition
 
-> **Module:** ssi*revenue_recognition **Model:** `revenue_recognition` > **Menu:** Cost
-> Accounting > Revenue Recognition > Revenue Recognitions **Actor:** user in group
-> \_Revenue Recognition — Validator* > **State:** `draft` | `confirm` | `done` →
-> `cancel` > **Requires:** `01-create`
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `revenue_recognition`
+>
+> **Menu:** Cost Accounting > Revenue Recognition > Revenue Recognitions
+>
+> **Actor:** user in group _Revenue Recognition — Validator_
+>
+> **State:** `draft` | `confirm` | `done` → `cancel`
+>
+> **Requires:** `01-create`
 
 ## Pre-Condition
 

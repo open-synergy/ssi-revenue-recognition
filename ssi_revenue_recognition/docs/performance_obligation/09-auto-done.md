@@ -1,8 +1,15 @@
 # Auto-Finish Performance Obligation
 
-> **Module:** ssi_revenue_recognition **Model:** `performance_obligation` > **Menu:**
-> Cost Accounting > Revenue Recognition > Performance Obligations **Actor:** System —
-> triggered automatically, no user interaction **State:** `open` → `done` >
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `performance_obligation`
+>
+> **Menu:** Cost Accounting > Revenue Recognition > Performance Obligations
+>
+> **Actor:** System — triggered automatically, no user interaction
+>
+> **State:** `open` → `done`
+>
 > **Requires:** `05-approve`
 
 There is no **Done** button on this model (`_automatically_insert_done_button = False`).

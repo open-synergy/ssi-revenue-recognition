@@ -1,8 +1,15 @@
 # Cancel Performance Obligation
 
-> **Module:** ssi*revenue_recognition **Model:** `performance_obligation` > **Menu:**
-> Cost Accounting > Revenue Recognition > Performance Obligations **Actor:** user in
-> group \_Performance Obligation — User* > **State:** `draft` | `open` → `cancel` >
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `performance_obligation`
+>
+> **Menu:** Cost Accounting > Revenue Recognition > Performance Obligations
+>
+> **Actor:** user in group _Performance Obligation — User_
+>
+> **State:** `draft` | `open` → `cancel`
+>
 > **Requires:** `01-create`
 
 ## Pre-Condition

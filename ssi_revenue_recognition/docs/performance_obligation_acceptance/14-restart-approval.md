@@ -1,8 +1,13 @@
 # Restart Approval Process — Performance Obligation Acceptance
 
-> **Module:** ssi*revenue_recognition **Model:** `performance_obligation_acceptance` >
+> **Module:** `ssi_revenue_recognition`
+>
+> **Model:** `performance_obligation_acceptance`
+>
 > **Menu:** Cost Accounting > Revenue Recognition > Performance Obligation Acceptances
-> **Actor:** user in group \_Performance Obligation Acceptance — Validator* >
+>
+> **Actor:** user in group _Performance Obligation Acceptance — Validator_
+>
 > **Requires:** `04-confirm`
 
 ## Pre-Condition
