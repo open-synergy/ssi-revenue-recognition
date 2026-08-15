@@ -15,7 +15,6 @@ msgstr ""
 
 #. module: ssi_revenue_recognition
 #: code:addons/ssi_revenue_recognition/models/performance_obligation.py:0
-#: code:addons/ssi_revenue_recognition/models/performance_obligation.py:0
 #, python-format
 msgid ""
 "\n"
