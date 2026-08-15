@@ -16,6 +16,7 @@
         "ssi_partner_mixin",
         "ssi_analytic_budget",
         "ssi_product_usage_account_type",
+        "account_analytic_parent",
         "base_automation",
         "web_tour",
     ],
