@@ -48,7 +48,7 @@ scenarios:
       # WAJIB: memaksa refresh sebelum approval dibaca (T-04) -- tanpa
       # step ini approve_ok bisa terbaca dari cache yang diisi
       # action_confirm, saat approval.approval belum ada.
-      - step: "PoB is confirm before approving"
+      - step: "PoB is confirm before approving, still without a project"
         action: "assert"
         refresh: true
         target: "pob_1"
@@ -56,6 +56,9 @@ scenarios:
           state:
             type: "value"
             expected: "confirm"
+          project_id:
+            type: "value"
+            operator: "is_falsy"
 
       - step: "Approve the PoB (auto-runs action_open, no ValueError)"
         action: "call"
@@ -91,6 +94,28 @@ scenarios:
           project_id.date:
             type: "value"
             expected: 2026-12-31
+
+      - step:
+          "Searching project.project by the PoB's own analytic account finds exactly the
+          linked project"
+        action: "search"
+        model: "project.project"
+        domain: [["analytic_account_id", "=", "REC: pob_aa_1.id"]]
+        save_as: "found_project_1"
+        expect_count: 1
+
+      - step:
+          "The found project is exactly the one linked to the PoB, named per
+          _prepare_project_data"
+        action: "assert"
+        target: "found_project_1"
+        asserts:
+          id:
+            type: "value"
+            expected: "REC: pob_1.project_id.id"
+          name:
+            type: "value"
+            expected: "Test PoB - Auto Create Project 1"
 
   - name: "Opening a PoB without auto_create_project creates no project"
     steps:
@@ -146,6 +171,54 @@ scenarios:
         action: "assert"
         target: "pob_2"
         asserts:
+          project_id:
+            type: "value"
+            operator: "is_falsy"
+
+  - name: "Calling action_open directly on a draft PoB is rejected"
+    steps:
+      - step: "Create source analytic account with a partner"
+        action: "create"
+        model: "account.analytic.account"
+        save_as: "source_aa_3"
+        values:
+          name: "Test Source AA - Auto Create Project 3"
+          partner_id: "REF: base.res_partner_2"
+
+      - step: "Create draft PoB with auto_create_project enabled"
+        action: "create"
+        model: "performance_obligation"
+        save_as: "pob_3"
+        as_user: "base.user_admin"
+        values:
+          title: "Test PoB - Auto Create Project 3"
+          source_analytic_account_id: "REC: source_aa_3.id"
+          auto_create_project: true
+
+      - step: "PoB is still draft before the rejected call"
+        action: "assert"
+        target: "pob_3"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Calling action_open directly from draft is rejected"
+        action: "call"
+        target: "pob_3"
+        method: "action_open"
+        as_user: "base.user_admin"
+        expect_error:
+          type: "UserError"
+
+      - step: "PoB stays draft with no project created"
+        action: "assert"
+        refresh: true
+        target: "pob_3"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
           project_id:
             type: "value"
             operator: "is_falsy"
