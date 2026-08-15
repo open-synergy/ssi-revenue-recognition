@@ -13,8 +13,11 @@
         "ssi_revenue_recognition_project",
         "ssi_revenue_recognition_operating_unit",
         "ssi_project_operating_unit",
+        "web_tour",
     ],
-    "data": [],
+    "data": [
+        "views/assets.xml",
+    ],
     "images": [
         "static/description/banner.png",
     ],
